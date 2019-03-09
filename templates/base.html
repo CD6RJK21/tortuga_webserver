@@ -22,6 +22,7 @@
       <nav class="navbar navbar-light bg-light">
         <a class="navbar-brand" href="/">Tortuga</a>
         <a class="navbar-brand" href="/upload">Загрузить книгу</a>
+        <a class="navbar-brand" href="/search">Поиск книги</a>
         {% if "username" in session %}
             <a class="navbar-brand" href="/logout">{{session['username']}}</a>
         {% else %}

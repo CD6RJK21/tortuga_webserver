@@ -49,8 +49,8 @@ class Book(db.Model):
     file_name = db.Column(db.String(120), unique=False, nullable=False)
 
     def __repr__(self):
-        return '<Book {} {} {} {}>'.format(
-            self.id, self.username, self.title, self.author)
+        return '<Book {} {} {}>'.format(
+            self.title, self.author, self.username)
 
 
 def register_user(username1, email1, password1):
@@ -84,6 +84,23 @@ def index():
         return render_template('index.html', username='Гость')
     else:
         return render_template('index.html', username=session['username'])
+
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    form = SearchForm()
+    request = form.request.data
+    books = []
+    if form.validate_on_submit():
+        books = Book.query.filter(Book.title.like('%' + request + '%'))
+        books = Book.query.filter(Book.author.like('%' + request + '%'))
+        books = list(books.order_by(Book.author).all())
+        for book in books:
+            if books.count(book) >= 2:
+                books.remove(book)
+        print(*books, sep='\n')
+    return render_template('search.html', form=form, books=books)
+    # return render_template('courselist.html', courses = courses)
 
 
 @app.route('/login', methods=['GET', 'POST'])

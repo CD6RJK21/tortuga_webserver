@@ -23,3 +23,8 @@ class SignUpForm(FlaskForm):
     email = StringField('Почта', validators=[Email()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Зарегистрироваться')
+
+
+class SearchForm(FlaskForm):
+    request = StringField('Поиск книги', validators=[DataRequired()])
+
