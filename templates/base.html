@@ -23,6 +23,13 @@
         <a class="navbar-brand" href="/">Tortuga</a>
         <a class="navbar-brand" href="/upload">Загрузить книгу</a>
         <a class="navbar-brand" href="/search">Поиск книги</a>
+        <form class="navbar-form navbar-left" method="post"
+                    action="/search">
+            <div class="form-group">
+                {{searchform.request.label}}
+                {{searchform.request}}<br>
+            </div>
+        </form>
         {% if "username" in session %}
             <a class="navbar-brand" href="/logout">{{session['username']}}</a>
         {% else %}

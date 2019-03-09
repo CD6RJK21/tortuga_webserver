@@ -15,6 +15,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 db = SQLAlchemy(app)
 
+render_template_old = render_template
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -77,6 +78,11 @@ db.create_all()
 # database ends.
 
 
+def render_template(html, **kwargs):
+    searchform1 = SearchForm()
+    return render_template_old(html, searchform=searchform1, **kwargs)
+
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -91,14 +97,12 @@ def search():
     form = SearchForm()
     request = form.request.data
     books = []
-    if form.validate_on_submit():
-        books = Book.query.filter(Book.title.like('%' + request + '%'))
-        books = Book.query.filter(Book.author.like('%' + request + '%'))
-        books = list(books.order_by(Book.author).all())
-        for book in books:
-            if books.count(book) >= 2:
-                books.remove(book)
-        print(*books, sep='\n')
+    books = Book.query.filter(Book.title.like('%' + request + '%'))
+    books = Book.query.filter(Book.author.like('%' + request + '%'))
+    books = list(books.order_by(Book.author).all())
+    for book in books:
+        if books.count(book) >= 2:
+            books.remove(book)
     return render_template('search.html', form=form, books=books)
     # return render_template('courselist.html', courses = courses)
 

@@ -5,7 +5,6 @@
     <form action="" method="post" novalidate enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <p>
-            {{ form.request.label }}<br>
             {{ form.request }}<br>
             {% for error in form.request.errors %}
                 <div class="alert alert-danger" role="alert">
