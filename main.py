@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, redirect, session, flash, send_file
 from flask_login import login_user, LoginManager, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
+from io import BytesIO
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import *
 
@@ -91,10 +92,7 @@ def render_template(html, **kwargs):
 @app.route('/download_file/<book_id>')
 def download_file(book_id):
     book = Book.query.filter_by(id=int(book_id)).first()
-    with open('buffer_file.txt', 'wb') as file:
-        file.write(bytes(book.book_file))
-    filename = book.file_name
-    return send_file('buffer_file.txt', attachment_filename=filename)
+    return send_file(BytesIO(book.book_file), attachment_filename=book.file_name, as_attachment=True)
 
 
 @app.route('/')
