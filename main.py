@@ -1,5 +1,5 @@
-from flask import Flask, request, render_template, redirect, session, flash
-from flask_login import login_user, LoginManager, logout_user
+from flask import Flask, request, render_template, redirect, session, flash, send_file
+from flask_login import login_user, LoginManager, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import *
@@ -50,8 +50,8 @@ class Book(db.Model):
     file_name = db.Column(db.String(120), unique=False, nullable=False)
 
     def __repr__(self):
-        return '<Book {} {} {}>'.format(
-            self.title, self.author, self.username)
+        return '{} {} {} {}>'.format(
+            self.title, self.author, self.username, self.id)
 
 
 def register_user(username1, email1, password1):
@@ -61,11 +61,16 @@ def register_user(username1, email1, password1):
 
 
 def upload_book(username1, title1, author1, book_file1):
-    book_data = book_file1.read()
-    book_name = book_file1.filename
-    book = Book(username=username1, title=title1, author=author1, book_file=book_data, file_name=book_name)
-    db.session.add(book)
-    db.session.commit()
+    author_free = False if list(Book.query.filter(Book.author == author1)) else True
+    title_free = False if list(Book.query.filter(Book.title == title1)) else True
+    if author_free or title_free:
+        book_data = book_file1.read()
+        book_name = book_file1.filename
+        book = Book(username=username1, title=title1, author=author1, book_file=book_data, file_name=book_name)
+        db.session.add(book)
+        db.session.commit()
+    else:
+        return 'Book already in db.'
 
 
 def download_book(id):
@@ -81,6 +86,15 @@ db.create_all()
 def render_template(html, **kwargs):
     searchform1 = SearchForm()
     return render_template_old(html, searchform=searchform1, **kwargs)
+
+
+@app.route('/download_file/<book_id>')
+def download_file(book_id):
+    book = Book.query.filter_by(id=int(book_id)).first()
+    with open('buffer_file.txt', 'wb') as file:
+        file.write(bytes(book.book_file))
+    filename = book.file_name
+    return send_file('buffer_file.txt', attachment_filename=filename)
 
 
 @app.route('/')
@@ -103,6 +117,7 @@ def search():
     for book in books:
         if books.count(book) >= 2:
             books.remove(book)
+    books = map(lambda x: str(x).split(), books)
     return render_template('search.html', form=form, books=books)
     # return render_template('courselist.html', courses = courses)
 
@@ -112,14 +127,13 @@ def login():
     form = LoginForm()
     user_name1 = form.username.data
     password1 = form.password.data
-    remember_me = form.remember_me.data
     if form.validate_on_submit():
         user = User.query.filter(User.username == user_name1)
         user = list(user)
         if user:
             user = user[0]
             if user.check_password(password1):
-                login_user(user, remember=remember_me)
+                login_user(user)
                 flash('Вы успешно вошли в систему.')
                 session['username'] = user_name1
                 session['user_id'] = user.id
@@ -163,8 +177,13 @@ def upload():
         return redirect('/login')
     form = BookUploadForm()
     if form.validate_on_submit():
-        upload_book('Adasd', form.title.data, form.author.data, form.file.data)  # TODO: make login page
-        return redirect("/index")
+        author_free = False if list(Book.query.filter(Book.author == form.author.data)) else True
+        title_free = False if list(Book.query.filter(Book.title == form.title.data)) else True
+        if title_free or author_free:
+            upload_book(session['username'], form.title.data, form.author.data, form.file.data)  # TODO: make login page
+            return redirect("/index")
+        else:
+            flash('Такая книга уже есть.')
     return render_template('upload.html', title='Загрузка книги',
                            form=form, username='Adasd')  # session['username']
 
