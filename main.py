@@ -51,8 +51,8 @@ class Book(db.Model):
     file_name = db.Column(db.String(120), unique=False, nullable=False)
 
     def __repr__(self):
-        return '{} {} {} {}>'.format(
-            self.title, self.author, self.username, self.id)
+        return '{}|||{}|||{}|||{}>'.format(
+            self.author, self.title, self.username, self.id)
 
 
 def register_user(username1, email1, password1):
@@ -109,15 +109,13 @@ def search():
     form = SearchForm()
     request = form.request.data
     books = []
-    books = Book.query.filter(Book.title.like('%' + request + '%'))
-    books = Book.query.filter(Book.author.like('%' + request + '%'))
-    books = list(books.order_by(Book.author).all())
+    books = Book.query.filter(Book.title.ilike(f'%{request}%') | Book.author.ilike(f'%{request}%'))
+    books = books.order_by(Book.author).all()
     for book in books:
         if books.count(book) >= 2:
             books.remove(book)
-    books = map(lambda x: str(x).split(), books)
+    books = map(lambda x: str(x).split('|||'), books)
     return render_template('search.html', form=form, books=books)
-    # return render_template('courselist.html', courses = courses)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -178,7 +176,8 @@ def upload():
         author_free = False if list(Book.query.filter(Book.author == form.author.data)) else True
         title_free = False if list(Book.query.filter(Book.title == form.title.data)) else True
         if title_free or author_free:
-            upload_book(session['username'], form.title.data, form.author.data, form.file.data)  # TODO: make login page
+            upload_book(session['username'], form.title.data, form.author.data, form.file.data)
+            flash('Книга успешно загружена.')
             return redirect("/index")
         else:
             flash('Такая книга уже есть.')
