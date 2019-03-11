@@ -99,23 +99,22 @@ def download_file(book_id):
 @app.route('/index')
 def index():
     if 'username' not in session:
-        return render_template('index.html', username='Гость')
+        return render_template('index.html', username='Гость', title='Главная страница')
     else:
-        return render_template('index.html', username=session['username'])
+        return render_template('index.html', username=session['username'], title='Главная страница')
 
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     form = SearchForm()
     request = form.request.data
-    books = []
     books = Book.query.filter(Book.title.ilike(f'%{request}%') | Book.author.ilike(f'%{request}%'))
     books = books.order_by(Book.author).all()
     for book in books:
         if books.count(book) >= 2:
             books.remove(book)
     books = map(lambda x: str(x).split('|||'), books)
-    return render_template('search.html', form=form, books=books)
+    return render_template('search.html', form=form, books=books, title='Поиск')
 
 
 @app.route('/login', methods=['GET', 'POST'])
