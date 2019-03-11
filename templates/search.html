@@ -1,6 +1,7 @@
 {% extends "base.html" %}
  
 {% block content %}
+    <script src="static/search.js"></script>
     <h1>Поиск книги</h1>
     <form action="" method="post" novalidate enctype="multipart/form-data">
         {{ form.hidden_tag() }}
@@ -14,7 +15,7 @@
         </p>
         {% if books %}
             <ul class="list-group">
-                <table>
+                <table class="sortable">
                 <tr>
                     <th>Автор</th>
                     <th>Название</th>
