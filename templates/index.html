@@ -2,4 +2,22 @@
  
 {% block content %}
     <h1>Привет, {{ username }}!</h1>
+    {% if books %}
+            <h2>Список загруженных вами книг:</h2>
+            <ul class="list-group">
+                <table class="sortable">
+                <tr>
+                    <th>Автор</th>
+                    <th>Название</th>
+                </tr>
+                {% for book in books %}
+                    <tr>
+                    <th><li class="list-group-item">{{book[0]}}</li></th>
+                    <th><li class="list-group-item">{{book[1]}}</li></th>
+                    <th><a class="navbar-brand" href="/download_file/{{book[3][:-1]}}">Скачать</a></th>
+                    </tr>
+                {% endfor %}
+                </table>
+            </ul>
+        {% endif %}
 {% endblock %}

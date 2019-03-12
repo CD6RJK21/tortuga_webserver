@@ -101,7 +101,9 @@ def index():
     if 'username' not in session:
         return render_template('index.html', username='Гость', title='Главная страница')
     else:
-        return render_template('index.html', username=session['username'], title='Главная страница')
+        books = Book.query.filter(Book.username == session['username']).order_by(Book.author).all()
+        books = map(lambda x: str(x).split('|||'), books)
+        return render_template('index.html', username=session['username'], title='Главная страница', books=books)
 
 
 @app.route('/search', methods=['GET', 'POST'])
