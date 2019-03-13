@@ -38,8 +38,8 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), unique=False, nullable=False)
+    is_admin = db.Column(db.Boolean(create_constraint=False), default=False)
     is_active = True
-    is_admin = False
 
     def __repr__(self):
         return '<User {} {} {}>'.format(
@@ -73,7 +73,9 @@ def register_user(username1, email1, password1):
 
 def make_user_admin(id):
     if User.query.filter_by(id=id).all():
-        User.query.filter_by(id=id).first().admin = True
+        User.query.filter_by(id=id).first().is_admin = True
+        db.session.commit()
+    return
 
 
 def upload_book(username1, title1, author1, book_file1):
@@ -109,6 +111,10 @@ def book_exists(id):
     exists = Book.query.filter_by(id=id).scalar() is not None
     return exists
 
+
+def user_exists(id):
+    exists = User.query.filter_by(id=id).scalar() is not None
+    return exists
 
 db.create_all()
 # database ends.
@@ -182,6 +188,13 @@ api.add_resource(BookSearch, '/booksearch/<request>')
 # REST done
 
 
+@app.route('/set_user_admin/<user_id>')
+def set_user_admin(user_id):
+    if user_exists(user_id):
+        make_user_admin(int(user_id))
+    return
+
+
 @app.route('/download_file/<book_id>')
 def download_file(book_id):
     book = Book.query.filter_by(id=int(book_id)).first()
@@ -233,6 +246,7 @@ def login():
                 flash('Вы успешно вошли в систему.')
                 session['username'] = user_name1
                 session['user_id'] = user.id
+                session['is_admin'] = user.is_admin
                 return redirect("/index")
             else:
                 flash('Неверный логин или пароль.', 'error')

@@ -27,6 +27,9 @@
                     <th><li class="list-group-item">{{book[1]}}</li></th>
                     <th><li class="list-group-item">{{book[2]}}</li></th>
                     <th><a class="navbar-brand" href="/download_file/{{book[3]}}">Скачать</a></th>
+                    {% if session.get('is_admin') %}
+                        <th><a class="navbar-brand" href="/delete_file/{{book[3]}}">Удалить</a></th>
+                    {% endif %}
                     </tr>
                 {% endfor %}
                 </table>
