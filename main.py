@@ -27,6 +27,11 @@ def load_user(user_id):
     return None
 
 
+def render_template(html,**kwargs):
+    searchform1 = SearchForm()
+    return render_template_old(html, searchform=searchform1, **kwargs)
+
+
 # database begins
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -165,6 +170,11 @@ class BookSearch(Resource):
         pass
 
 
+@app.errorhandler(404)
+def abort_if_page_notfound(page_id):
+    abort(404, message="Page {} not found".format(page_id))
+
+
 api.add_resource(BooksList, '/books')
 api.add_resource(Books, '/books/<int:book_id>')
 api.add_resource(BookSearch, '/booksearch/<request>')
@@ -172,20 +182,16 @@ api.add_resource(BookSearch, '/booksearch/<request>')
 # REST done
 
 
-@app.errorhandler(404)
-def abort_if_page_notfound(page_id):
-    abort(404, message="Page {} not found".format(page_id))
-
-
-def render_template(html,**kwargs):
-    searchform1 = SearchForm()
-    return render_template_old(html, searchform=searchform1, **kwargs)
-
-
 @app.route('/download_file/<book_id>')
 def download_file(book_id):
     book = Book.query.filter_by(id=int(book_id)).first()
     return send_file(BytesIO(book.book_file), attachment_filename=book.file_name, as_attachment=True)
+
+
+@app.route('/delete_file/<book_id>')
+def delete_file(book_id):
+    delete_book(int(book_id))
+    return redirect('/index')
 
 
 @app.route('/')
@@ -195,7 +201,7 @@ def index():
         return render_template('index.html', username='Гость', title='Главная страница')
     else:
         books = Book.query.filter(Book.username == session['username']).order_by(Book.author).all()
-        books = map(lambda x: str(x).split('|||'), books)
+        books = list(map(lambda x: str(x).split('|||'), books))
         return render_template('index.html', username=session['username'], title='Главная страница', books=books)
 
 
