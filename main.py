@@ -92,29 +92,59 @@ def upload_book(username1, title1, author1, book_file1):
 
 
 def download_book(id):
+    try:
+        id = int(id)
+    except ValueError as ve:
+        print(ve)
     book = Book.query.filter_by(id=id).first()
     with open(book.file_name, 'wb') as file:
         file.write(book.book_file)
 
 
 def get_book(id):
+    try:
+        id = int(id)
+    except ValueError as ve:
+        print(ve)
     book = Book.query.filter_by(id=id).first()
     return book
 
 
 def delete_book(id):
+    try:
+        id = int(id)
+    except ValueError as ve:
+        print(ve)
     book = Book.query.filter_by(id=id).delete()
     db.session.commit()  # db.session.delete(user)
 
 
 def book_exists(id):
+    try:
+        id = int(id)
+    except ValueError as ve:
+        print(ve)
     exists = Book.query.filter_by(id=id).scalar() is not None
     return exists
 
 
 def user_exists(id):
+    try:
+        id = int(id)
+    except ValueError as ve:
+        print(ve)
     exists = User.query.filter_by(id=id).scalar() is not None
     return exists
+
+
+def get_username(id):
+    try:
+        id = int(id)
+    except ValueError as ve:
+        print(ve)
+    username = User.query.filter_by(id=id).username is not None
+    return username
+
 
 db.create_all()
 # database ends.
@@ -168,7 +198,7 @@ class BookSearch(Resource):
         for book in books:
             if books.count(book) >= 2:
                 books.remove(book)
-        books = map(lambda x: str(x).split('|||'), books)
+        books = list(map(lambda x: str(x).split('|||'), books))
         return render_template('search.html', form=form, books=books, title='Поиск')
         # return jsonify({'books': books})
 
@@ -192,7 +222,8 @@ api.add_resource(BookSearch, '/booksearch/<request>')
 def set_user_admin(user_id):
     if user_exists(user_id):
         make_user_admin(int(user_id))
-    return
+    flash('Пользователю успешно предоставлены права администратора')
+    return redirect('/index')
 
 
 @app.route('/download_file/<book_id>')
@@ -227,7 +258,7 @@ def search():
     for book in books:
         if books.count(book) >= 2:
             books.remove(book)
-    books = map(lambda x: str(x).split('|||'), books)
+    books = list(map(lambda x: str(x).split('|||'), books))
     return render_template('search.html', form=form, books=books, title='Поиск')
 
 
