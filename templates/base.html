@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title>{{title}}</title>
+</head>
+  <body>
+    <header>
+      <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">Tortuga</a>
+        <a class="navbar-brand" href="/upload">Загрузить книгу</a>
+        <form class="navbar-brand" method="post"
+                    action="/search">
+            <div class="form-group">
+                {{searchform.request.label}}
+                {{searchform.request}}<br>
+            </div>
+        </form>
+        {% if session.get('is_admin') %}
+            <a class="navbar-brand" href="/all_users">Список всех пользователей</a>
+        {% endif %}
+        {% if "username" in session %}
+            <a class="navbar-brand" href="/logout">{{session['username']}}</a>
+        {% else %}
+            <a class="navbar-brand" href="/sign_up">Регистрация</a>
+            <a class="navbar-brand" href="/login">Вход</a>
+        {% endif %}
+      </nav>
+    </header>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul class=flashes>
@@ -16,27 +40,6 @@
             </ul>
         {% endif %}
     {% endwith %}
-</head>
-  <body>
-    <header>
-      <nav class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="/">Tortuga</a>
-        <a class="navbar-brand" href="/upload">Загрузить книгу</a>
-        <form class="navbar-form navbar-left" method="post"
-                    action="/search">
-            <div class="form-group">
-                {{searchform.request.label}}
-                {{searchform.request}}<br>
-            </div>
-        </form>
-        {% if "username" in session %}
-            <a class="navbar-brand" href="/logout">{{session['username']}}</a>
-        {% else %}
-            <a class="navbar-brand" href="/sign_up">Регистрация</a>
-            <a class="navbar-brand" href="/login">Вход</a>
-        {% endif %}
-      </nav>
-    </header>
     <!-- Begin page content -->
     <main role="main" class="container">
     {% block content %}{% endblock %}

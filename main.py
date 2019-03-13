@@ -22,6 +22,7 @@ db = SQLAlchemy(app)
 
 render_template_old = render_template
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return None
@@ -253,12 +254,14 @@ def index():
 def search():
     form = SearchForm()
     request = form.request.data
-    books = Book.query.filter(Book.title.ilike(f'%{request}%') | Book.author.ilike(f'%{request}%'))
-    books = books.order_by(Book.author).all()
-    for book in books:
-        if books.count(book) >= 2:
-            books.remove(book)
-    books = list(map(lambda x: str(x).split('|||'), books))
+    books = []
+    if request != '':
+        books = Book.query.filter(Book.title.ilike(f'%{request}%') | Book.author.ilike(f'%{request}%'))
+        books = books.order_by(Book.author).all()
+        for book in books:
+            if books.count(book) >= 2:
+                books.remove(book)
+        books = list(map(lambda x: str(x).split('|||'), books))
     return render_template('search.html', form=form, books=books, title='Поиск')
 
 
@@ -310,6 +313,21 @@ def sign_up():
         else:
             flash('Имя пользователя или почта заняты.')
     return render_template('sign_up.html', title='Регистрация', form=form)
+
+
+@app.route('/all_users')
+def all_users():
+    users = User.query.all()
+    users = list(map(lambda x: str(x), users))
+    users1, users2 = [], []
+    col = 1
+    for user in users:
+        if col == 1:
+            users1.append(user)
+        else:
+            users2.append(user)
+        col = (col + 1) % 2
+    return render_template('users_list.html', title='Список пользователей', users1=users1, users2=users2)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
