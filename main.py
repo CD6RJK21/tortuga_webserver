@@ -43,7 +43,7 @@ class User(db.Model):
     is_active = True
 
     def __repr__(self):
-        return '<User {} {} {}>'.format(
+        return '<{}|||{}|||{}>'.format(
             self.id, self.username, self.email)
 
     def check_password(self, password):
@@ -210,6 +210,7 @@ class BookSearch(Resource):
 @app.errorhandler(404)
 def abort_if_page_notfound(page_id):
     abort(404, message="Page {} not found".format(page_id))
+    print(page_id)
 
 
 api.add_resource(BooksList, '/books')
@@ -225,6 +226,19 @@ def set_user_admin(user_id):
         make_user_admin(int(user_id))
     flash('Пользователю успешно предоставлены права администратора')
     return redirect('/index')
+
+
+@app.route('/delete_user/<user_id>')
+def delete_user(user_id):
+    if user_exists(user_id):
+        try:
+            id = int(user_id)
+        except ValueError as ve:
+            print(ve)
+        user = User.query.filter_by(id=id).delete()
+        db.session.commit()
+        flash('Пользователь успешно удалён')
+    return redirect('/all_users')
 
 
 @app.route('/download_file/<book_id>')
@@ -322,6 +336,7 @@ def all_users():
     users1, users2 = [], []
     col = 1
     for user in users:
+        user = user.split('|||')
         if col == 1:
             users1.append(user)
         else:
