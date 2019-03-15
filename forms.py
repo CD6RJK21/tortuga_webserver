@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField
+from flask_wtf.file import FileField, FileRequired
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms.validators import DataRequired, Email
 
 
@@ -26,4 +26,3 @@ class SignUpForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     request = StringField('Поиск книги', validators=[DataRequired()])
-

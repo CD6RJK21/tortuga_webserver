@@ -1,12 +1,14 @@
-from flask import Flask, request, render_template, redirect, session, flash, send_file, jsonify
-from flask_login import login_user, LoginManager, logout_user
-from flask_sqlalchemy import SQLAlchemy
 from io import BytesIO
-from flask_restful import reqparse, abort, Api, Resource
-from werkzeug.security import generate_password_hash, check_password_hash
-from forms import *
-from flask_bootstrap import Bootstrap
 
+from flask import Flask, render_template, redirect, session, flash,\
+    send_file, jsonify
+from flask_bootstrap import Bootstrap
+from flask_login import login_user, LoginManager, logout_user
+from flask_restful import reqparse, abort, Api, Resource
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from forms import *
 
 app = Flask(__name__)
 app.secret_key = '0bcfb47472328e90fbf26d4ef88d9d90'
@@ -31,7 +33,7 @@ def load_user(user_id):
     return None
 
 
-def render_template(html,**kwargs):
+def render_template(html, **kwargs):
     searchform1 = SearchForm()
     return render_template_old(html, searchform=searchform1, **kwargs)
 
@@ -70,7 +72,8 @@ class Book(db.Model):
 
 
 def register_user(username1, email1, password1):
-    user = User(username=username1, email=email1, password_hash=generate_password_hash(password1))
+    user = User(username=username1, email=email1,
+                password_hash=generate_password_hash(password1))
     db.session.add(user)
     db.session.commit()
 
@@ -83,12 +86,15 @@ def make_user_admin(id):
 
 
 def upload_book(username1, title1, author1, book_file1):
-    author_free = False if list(Book.query.filter(Book.author == author1)) else True
-    title_free = False if list(Book.query.filter(Book.title == title1)) else True
+    author_free = False if list(
+        Book.query.filter(Book.author == author1)) else True
+    title_free = False if list(
+        Book.query.filter(Book.title == title1)) else True
     if author_free or title_free:
         book_data = book_file1.read()
         book_name = book_file1.filename
-        book = Book(username=username1, title=title1, author=author1, book_file=book_data, file_name=book_name)
+        book = Book(username=username1, title=title1, author=author1,
+                    book_file=book_data, file_name=book_name)
         db.session.add(book)
         db.session.commit()
     else:
@@ -151,6 +157,8 @@ def get_username(id):
 
 
 db.create_all()
+
+
 # database ends.
 
 
@@ -197,14 +205,17 @@ class BookSearch(Resource):
         form = SearchForm()
         books = Book.query.all()
         books = list(map(lambda x: str(x), books))
-        books = Book.query.filter(Book.title.ilike(f'%{request}%') | Book.author.ilike(f'%{request}%'))
+        books = Book.query.filter(
+            Book.title.ilike(f'%{request}%') | Book.author.ilike(
+                f'%{request}%'))
         books = books.order_by(Book.author).all()
         for book in books:
             if books.count(book) >= 2:
                 books.remove(book)
         books = list(map(lambda x: str(x).split('|||'), books))
-        # return render_template('search.html', form=form, books=books, title='Поиск')
         return jsonify({'books': books})
+
+# return render_template('search.html', form=form, books=books, title='Поиск')
 
     def post(self):
         pass
@@ -219,6 +230,7 @@ def abort_if_page_notfound(page_id):
 api.add_resource(BooksList, '/books')
 api.add_resource(Books, '/books/<int:book_id>')
 api.add_resource(BookSearch, '/booksearch/<request>')
+
 
 # REST done
 
@@ -252,7 +264,8 @@ def delete_user(user_id):
 @app.route('/download_file/<book_id>')
 def download_file(book_id):
     book = Book.query.filter_by(id=int(book_id)).first()
-    return send_file(BytesIO(book.book_file), attachment_filename=book.file_name, as_attachment=True)
+    return send_file(BytesIO(book.book_file),
+                     attachment_filename=book.file_name, as_attachment=True)
 
 
 @app.route('/delete_file/<book_id>')
@@ -266,11 +279,14 @@ def delete_file(book_id):
 @app.route('/index')
 def index():
     if 'username' not in session:
-        return render_template('index.html', username='Гость', title='Главная страница')
+        return render_template('index.html', username='Гость',
+                               title='Главная страница')
     else:
-        books = Book.query.filter(Book.username == session['username']).order_by(Book.author).all()
+        books = Book.query.filter(
+            Book.username == session['username']).order_by(Book.author).all()
         books = list(map(lambda x: str(x).split('|||'), books))
-        return render_template('index.html', username=session['username'], title='Главная страница', books=books)
+        return render_template('index.html', username=session['username'],
+                               title='Главная страница', books=books)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -279,13 +295,16 @@ def search():
     request = form.request.data
     books = []
     if request != '':
-        books = Book.query.filter(Book.title.ilike(f'%{request}%') | Book.author.ilike(f'%{request}%'))
+        books = Book.query.filter(
+            Book.title.ilike(f'%{request}%') | Book.author.ilike(
+                f'%{request}%'))
         books = books.order_by(Book.author).all()
         for book in books:
             if books.count(book) >= 2:
                 books.remove(book)
         books = list(map(lambda x: str(x).split('|||'), books))
-    return render_template('search.html', form=form, books=books, title='Поиск')
+    return render_template('search.html', form=form, books=books,
+                           title='Поиск')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -328,8 +347,10 @@ def sign_up():
     email1 = form.email.data
     password1 = form.password.data
     if form.submit.data:
-        user_name_free = False if list(User.query.filter(User.username == user_name1)) else True
-        email_free = False if list(User.query.filter(User.email == email1)) else True
+        user_name_free = False if list(
+            User.query.filter(User.username == user_name1)) else True
+        email_free = False if list(
+            User.query.filter(User.email == email1)) else True
         if user_name_free and email_free:
             register_user(user_name1, email1, password1)
             flash('Вы успешно зарегестрированы.')
@@ -355,7 +376,8 @@ def all_users():
         else:
             users2.append(user)
         col = (col + 1) % 2
-    return render_template('all_users.html', title='Список пользователей', users1=users1, users2=users2)
+    return render_template('all_users.html', title='Список пользователей',
+                           users1=users1, users2=users2)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -364,10 +386,13 @@ def upload():
         return redirect('/login')
     form = BookUploadForm()
     if form.validate_on_submit():
-        author_free = False if list(Book.query.filter(Book.author == form.author.data)) else True
-        title_free = False if list(Book.query.filter(Book.title == form.title.data)) else True
+        author_free = False if list(
+            Book.query.filter(Book.author == form.author.data)) else True
+        title_free = False if list(
+            Book.query.filter(Book.title == form.title.data)) else True
         if title_free or author_free:
-            upload_book(session['username'], form.title.data, form.author.data, form.file.data)
+            upload_book(session['username'], form.title.data, form.author.data,
+                        form.file.data)
             flash('Книга успешно загружена.')
             return redirect("/index")
         else:
