@@ -9,7 +9,7 @@
   <body>
     <header>
       <nav class="navbar navbar-dark bg-dark">
-        <a class="navbar-brand" href="/">Tortuga</a>
+        <a class="navbar-brand" href="/">Электронная библиотека</a>
         <a class="navbar-brand" href="/upload">Загрузить книгу</a>
         <form class="navbar-brand" method="post"
                     action="/search">
@@ -18,7 +18,7 @@
                 {{searchform.request}}<br>
             </div>
         </form>
-        {% if session.get('is_admin') %}
+        {% if 'is_admin' in session and session.get('is_admin') %}
             <a class="navbar-brand" href="/all_users">Список всех пользователей</a>
         {% endif %}
         {% if "username" in session %}

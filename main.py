@@ -39,7 +39,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), unique=False, nullable=False)
-    is_admin = db.Column(db.Boolean(create_constraint=False), default=False)
+    is_admin = db.Column(db.Boolean(), default=False)
     is_active = True
 
     def __repr__(self):
@@ -308,6 +308,7 @@ def logout():
     logout_user()
     session.pop('username', 0)
     session.pop('user_id', 0)
+    session.pop('is_admin', 0)
     return redirect('/')
 
 
@@ -331,6 +332,9 @@ def sign_up():
 
 @app.route('/all_users')
 def all_users():
+    if not session['is_admin']:
+        abort(403, message="Эта страница доступна только администратору")
+        return redirect('/')
     users = User.query.all()
     users = list(map(lambda x: str(x), users))
     users1, users2 = [], []
@@ -342,7 +346,7 @@ def all_users():
         else:
             users2.append(user)
         col = (col + 1) % 2
-    return render_template('users_list.html', title='Список пользователей', users1=users1, users2=users2)
+    return render_template('all_users.html', title='Список пользователей', users1=users1, users2=users2)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
