@@ -4,26 +4,23 @@
     <script src="static/search.js"></script>
     <h1>Список пользователей</h1>
     <style>
-     ul.hr {
-      margin: 0; /* Обнуляем значение отступов */
-      padding: 4px; /* Значение полей */
+     ul {
+      float: left;
      }
-     ul.hr table {
-      display: inline; /* Отображать как строчный элемент */
-      margin-right: 5px; /* Отступ слева */
-      border: 1px solid #000; /* Рамка вокруг текста */
-      padding: 3px; /* Поля вокруг текста */
+     ul.table table {
+      float: left;
      }
     </style>
     {% if users1 %}
-        <ul class="list-group">
-            <table class="sortable">
+        <ul class="list-group" >
+            <table class="sortable" >
             <tr>
                 <th>Логин</th>
             </tr>
             {% for user in users1 %}
                 <tr>
                 <th><li class="list-group-item">{{user[1]}}</li></th>
+                <th><a class="navbar-brand" href="/set_user_admin/{{user[0]}}">Сделать админом</a></th>
                 <th><a class="navbar-brand" href="/delete_user/{{user[0]}}">Удалить</a></th>
                 </tr>
             {% endfor %}
@@ -32,13 +29,14 @@
     {% endif %}
     {% if users2 %}
         <ul class="list-group">
-            <table class="sortable">
+            <table class="sortable" >
             <tr>
                 <th>Логин</th>
             </tr>
             {% for user in users2 %}
                 <tr>
                 <th><li class="list-group-item">{{user[1]}}</li></th>
+                <th><a class="navbar-brand" href="/set_user_admin/{{user[0]}}">Сделать админом</a></th>
                 <th><a class="navbar-brand" href="/delete_user/{{user[0]}}">Удалить</a></th>
                 </tr>
             {% endfor %}

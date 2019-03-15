@@ -43,7 +43,7 @@ class User(db.Model):
     is_active = True
 
     def __repr__(self):
-        return '<{}|||{}|||{}>'.format(
+        return '{}|||{}|||{}'.format(
             self.id, self.username, self.email)
 
     def check_password(self, password):
@@ -222,10 +222,13 @@ api.add_resource(BookSearch, '/booksearch/<request>')
 
 @app.route('/set_user_admin/<user_id>')
 def set_user_admin(user_id):
+    if not session['is_admin']:
+        abort(403, message="Эта страница доступна только администратору")
+        return redirect('/')
     if user_exists(user_id):
         make_user_admin(int(user_id))
     flash('Пользователю успешно предоставлены права администратора')
-    return redirect('/index')
+    return redirect('/all_users')
 
 
 @app.route('/delete_user/<user_id>')
@@ -235,6 +238,8 @@ def delete_user(user_id):
             id = int(user_id)
         except ValueError as ve:
             print(ve)
+        if id == session['user_id']:
+            return redirect('/all_users')
         user = User.query.filter_by(id=id).delete()
         db.session.commit()
         flash('Пользователь успешно удалён')
@@ -250,6 +255,7 @@ def download_file(book_id):
 @app.route('/delete_file/<book_id>')
 def delete_file(book_id):
     delete_book(int(book_id))
+    flash('Книга удалена')
     return redirect('/index')
 
 
