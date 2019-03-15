@@ -5,6 +5,7 @@ from io import BytesIO
 from flask_restful import reqparse, abort, Api, Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import *
+from flask_bootstrap import Bootstrap
 
 
 app = Flask(__name__)
@@ -12,6 +13,8 @@ app.secret_key = '0bcfb47472328e90fbf26d4ef88d9d90'
 app.config['SECRET_KEY'] = '0bcfb47472328e90fbf26d4ef88d9d90'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+Bootstrap(app)
 
 api = Api(app)
 
@@ -200,8 +203,8 @@ class BookSearch(Resource):
             if books.count(book) >= 2:
                 books.remove(book)
         books = list(map(lambda x: str(x).split('|||'), books))
-        return render_template('search.html', form=form, books=books, title='Поиск')
-        # return jsonify({'books': books})
+        # return render_template('search.html', form=form, books=books, title='Поиск')
+        return jsonify({'books': books})
 
     def post(self):
         pass
@@ -330,7 +333,7 @@ def sign_up():
         if user_name_free and email_free:
             register_user(user_name1, email1, password1)
             flash('Вы успешно зарегестрированы.')
-            return redirect("/index")
+            return redirect("/login")
         else:
             flash('Имя пользователя или почта заняты.')
     return render_template('sign_up.html', title='Регистрация', form=form)

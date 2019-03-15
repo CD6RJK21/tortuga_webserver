@@ -1,18 +1,11 @@
 {% extends "base.html" %}
- 
+
 {% block content %}
     <script src="static/search.js"></script>
     <h1>Поиск книги</h1>
     <form action="" method="post" novalidate enctype="multipart/form-data">
         {{ form.hidden_tag() }}
-        <p>
-            {{ form.request }}<br>
-            {% for error in form.request.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
+        {{ wtf.quick_form(form) }}
         {% if books %}
             <ul class="list-group">
                 <table class="sortable">

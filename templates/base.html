@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+    {% import "bootstrap/wtf.html" as wtf %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -10,7 +11,6 @@
     <header>
       <nav class="navbar navbar-dark bg-dark">
         <a class="navbar-brand" href="/">Электронная библиотека</a>
-        <a class="navbar-brand" href="/upload">Загрузить книгу</a>
         <form class="navbar-brand" method="post"
                     action="/search">
             <div class="form-group">
@@ -18,6 +18,7 @@
                 {{searchform.request}}<br>
             </div>
         </form>
+        <a class="navbar-brand" href="/upload">Загрузить книгу</a>
         {% if 'is_admin' in session and session.get('is_admin') %}
             <a class="navbar-brand" href="/all_users">Список всех пользователей</a>
         {% endif %}
