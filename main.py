@@ -337,10 +337,11 @@ def login():
 
 @app.route('/logout')
 def logout():
-    logout_user()
-    session.pop('username', 0)
-    session.pop('user_id', 0)
-    session.pop('is_admin', 0)
+    if 'username' in session:
+        logout_user()
+        session.pop('username', 0)
+        session.pop('user_id', 0)
+        session.pop('is_admin', 0)
     return redirect('/')
 
 
