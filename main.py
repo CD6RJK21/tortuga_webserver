@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from flask import Flask, render_template, redirect, session, flash,\
+from flask import Flask, render_template, redirect, session, flash, \
     send_file, jsonify
 from flask_bootstrap import Bootstrap
 from flask_login import login_user, LoginManager, logout_user
@@ -215,7 +215,7 @@ class BookSearch(Resource):
         books = list(map(lambda x: str(x).split('|||'), books))
         return jsonify({'books': books})
 
-# return render_template('search.html', form=form, books=books, title='Поиск')
+    # return render_template('search.html', form=form, books=books, title='Поиск')
 
     def post(self):
         pass
@@ -282,6 +282,8 @@ def index():
         return render_template('index.html', username='Гость',
                                title='Главная страница')
     else:
+        if User.query.filter_by(id=session.get('user_id')).first().is_admin:
+            session['is_admin'] = True
         books = Book.query.filter(
             Book.username == session['username']).order_by(Book.author).all()
         books = list(map(lambda x: str(x).split('|||'), books))
@@ -309,6 +311,8 @@ def search():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'username' in session:
+        return redirect('/')
     form = LoginForm()
     user_name1 = form.username.data
     password1 = form.password.data
@@ -342,6 +346,8 @@ def logout():
 
 @app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
+    if 'username' in session:
+        return redirect('/')
     form = SignUpForm()
     user_name1 = form.username.data
     email1 = form.email.data
@@ -402,5 +408,5 @@ def upload():
 
 
 if __name__ == '__main__':
+    # make_user_admin(User.query.filter_by(username='username_here').first().id)
     app.run(port=8080, host='127.0.0.1')
-    # make_user_admin(1)
