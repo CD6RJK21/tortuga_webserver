@@ -410,4 +410,4 @@ def upload():
 
 if __name__ == '__main__':
     # make_user_admin(User.query.filter_by(username='username_here').first().id)
-    app.run(port=8080, host='127.0.0.1')
+    app.run(port=8080, host='0.0.0.0')
