@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+ 
+{% block content %}
+    <script src="static/search.js"></script>
+    <h1>Список пользователей</h1>
+    <style>
+     ul {
+      float: left;
+     }
+     ul.table table {
+      float: left;
+     }
+    </style>
+    {% if users1 %}
+        <ul class="list-group" >
+            <table class="sortable" >
+            <tr>
+                <th>Логин</th>
+            </tr>
+            {% for user in users1 %}
+                <tr>
+                <th><li class="list-group-item">{{user[1]}}</li></th>
+                <th><a class="navbar-brand" href="/set_user_admin/{{user[0]}}">Сделать админом</a></th>
+                <th><a class="navbar-brand" href="/delete_user/{{user[0]}}">Удалить</a></th>
+                </tr>
+            {% endfor %}
+            </table>
+        </ul>
+    {% endif %}
+    {% if users2 %}
+        <ul class="list-group">
+            <table class="sortable" >
+            <tr>
+                <th>Логин</th>
+            </tr>
+            {% for user in users2 %}
+                <tr>
+                <th><li class="list-group-item">{{user[1]}}</li></th>
+                <th><a class="navbar-brand" href="/set_user_admin/{{user[0]}}">Сделать админом</a></th>
+                <th><a class="navbar-brand" href="/delete_user/{{user[0]}}">Удалить</a></th>
+                </tr>
+            {% endfor %}
+            </table>
+        </ul>
+    {% endif %}
+{% endblock %}
