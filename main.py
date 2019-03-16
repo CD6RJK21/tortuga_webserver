@@ -309,6 +309,8 @@ def search():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'username' in session:
+        return redirect('/')
     form = LoginForm()
     user_name1 = form.username.data
     password1 = form.password.data
@@ -342,6 +344,8 @@ def logout():
 
 @app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
+    if 'username' in session:
+        return redirect('/')
     form = SignUpForm()
     user_name1 = form.username.data
     email1 = form.email.data
