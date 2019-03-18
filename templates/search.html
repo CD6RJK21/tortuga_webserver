@@ -1,32 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <script src="static/search.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready( function () {
+            $('#search_results').DataTable();
+        } );
+    </script>
     <h1>Поиск книги</h1>
     <form action="" method="post" novalidate enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         {{ wtf.quick_form(form) }}
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
         {% if books %}
-            <ul class="list-group">
-                <table class="sortable">
+            <table id="search_results" class="display">
+            <thead>
                 <tr>
                     <th>Автор</th>
                     <th>Название</th>
                     <th>Пользователь</th>
+                    <th>Скачать</th>
+                    <th>Удалить</th>
                 </tr>
+            </thead>
+            <tbody>
                 {% for book in books %}
                     <tr>
-                    <th><li class="list-group-item">{{book[0]}}</li></th>
-                    <th><li class="list-group-item">{{book[1]}}</li></th>
-                    <th><li class="list-group-item">{{book[2]}}</li></th>
+                    <th>{{book[0]}}</th>
+                    <th>{{book[1]}}</th>
+                    <th>{{book[2]}}</th>
                     <th><a class="navbar-brand" href="/download_file/{{book[3]}}">Скачать</a></th>
                     {% if session.get('is_admin') %}
                         <th><a class="navbar-brand" href="/delete_file/{{book[3]}}">Удалить</a></th>
+                    {% else %}
+                        <th>Удалить</th>
                     {% endif %}
                     </tr>
                 {% endfor %}
-                </table>
-            </ul>
+            </tbody>
+            </table>
         {% else %}
             <h3>По вашему запросу ничего не найдено</h3>
         {% endif %}

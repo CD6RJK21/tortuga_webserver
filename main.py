@@ -39,6 +39,14 @@ def render_template(html, **kwargs):
 
 
 # database begins
+# class Author(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     display_name = db.Column(db.String(240), unique=False, nullable=False)
+#     full_name = db.Column(db.String(240), unique=False, nullable=False)
+#     image = db.Column(db.LargeBinary(), nullable=True)
+#     description = db.Column(db.String(1024), unique=False, nullable=False)
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -221,10 +229,10 @@ class BookSearch(Resource):
         pass
 
 
-@app.errorhandler(404)
-def abort_if_page_notfound(page_id):
-    abort(404, message="Page {} not found".format(page_id))
-    print(page_id)
+# @app.errorhandler(404)
+# def abort_if_page_notfound(page_id):
+#     abort(404, message="Page {} not found".format(page_id))
+#     print(page_id)
 
 
 api.add_resource(BooksList, '/books')

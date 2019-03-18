@@ -1,25 +1,36 @@
 {% extends "base.html" %}
  
 {% block content %}
-    <script src="static/search.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready( function () {
+            $('#users_books').DataTable();
+        } );
+    </script>
     <h1>Привет, {{ username }}!</h1>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
     {% if books %}
-            <h2>Список загруженных вами книг:</h2>
-            <ul class="list-group">
-                <table class="sortable">
+        <h2>Список загруженных вами книг:</h2>
+        <table id="users_books" class="display">
+        <thead>
+            <tr>
+                <th>Автор</th>
+                <th>Название</th>
+                <th>Скачать</th>
+                <th>Удалить</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
                 <tr>
-                    <th>Автор</th>
-                    <th>Название</th>
+                <th>{{book[0]}}</th>
+                <th>{{book[1]}}</th>
+                <th><a class="navbar-brand" href="/download_file/{{book[3]}}">Скачать</a></th>
+                <th><a class="navbar-brand" href="/delete_file/{{book[3]}}">Удалить</a></th>
                 </tr>
-                {% for book in books %}
-                    <tr>
-                    <th><li class="list-group-item">{{book[0]}}</li></th>
-                    <th><li class="list-group-item">{{book[1]}}</li></th>
-                    <th><a class="navbar-brand" href="/download_file/{{book[3]}}">Скачать</a></th>
-                    <th><a class="navbar-brand" href="/delete_file/{{book[3]}}">Удалить</a></th>
-                    </tr>
-                {% endfor %}
-                </table>
-            </ul>
-        {% endif %}
+            {% endfor %}
+        </tbody>
+        </table>
+    {% endif %}
 {% endblock %}
