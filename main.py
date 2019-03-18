@@ -39,12 +39,16 @@ def render_template(html, **kwargs):
 
 
 # database begins
-# class Author(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     display_name = db.Column(db.String(240), unique=False, nullable=False)
-#     full_name = db.Column(db.String(240), unique=False, nullable=False)
-#     image = db.Column(db.LargeBinary(), nullable=True)
-#     description = db.Column(db.String(1024), unique=False, nullable=False)
+class Author(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    display_name = db.Column(db.String(240), unique=False, nullable=False)
+    full_name = db.Column(db.String(240), unique=False, nullable=False)
+    image = db.Column(db.LargeBinary(), nullable=True)
+    description = db.Column(db.String(1024), unique=False, nullable=True)
+
+    def __repr__(self):
+        return '{}|||{}|||{}|||{}'.format(
+            self.id, self.display_name, self.full_name, self.description)
 
 
 class User(db.Model):
@@ -73,10 +77,11 @@ class Book(db.Model):
     author = db.Column(db.String(120), unique=False, nullable=False)
     book_file = db.Column(db.LargeBinary(), nullable=False)
     file_name = db.Column(db.String(120), unique=False, nullable=False)
+    author_id = db.Column(db.Integer, unique=False, nullable=False, default=0)
 
     def __repr__(self):
-        return '{}|||{}|||{}|||{}'.format(
-            self.author, self.title, self.username, self.id)
+        return '{}|||{}|||{}|||{}|||{}'.format(
+            self.author, self.title, self.username, self.id, self.author_id)
 
 
 def register_user(username1, email1, password1):
@@ -84,6 +89,15 @@ def register_user(username1, email1, password1):
                 password_hash=generate_password_hash(password1))
     db.session.add(user)
     db.session.commit()
+    return
+
+
+def add_author(display_name, full_name, image, description):
+    author = Author(display_name=display_name, full_name=full_name,
+                    image=image, description=description)
+    db.session.add(author)
+    db.session.commit()
+    return
 
 
 def make_user_admin(id):
@@ -223,16 +237,16 @@ class BookSearch(Resource):
         books = list(map(lambda x: str(x).split('|||'), books))
         return jsonify({'books': books})
 
-    # return render_template('search.html', form=form, books=books, title='Поиск')
+# return render_template('search.html', form=form, books=books, title='Поиск')
 
     def post(self):
         pass
 
 
-# @app.errorhandler(404)
-# def abort_if_page_notfound(page_id):
-#     abort(404, message="Page {} not found".format(page_id))
-#     print(page_id)
+@app.errorhandler(404)
+def abort_if_page_notfound(page_id):
+    abort(404, message="Page {} not found".format(page_id))
+    print(page_id)
 
 
 api.add_resource(BooksList, '/books')
