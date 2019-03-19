@@ -1,7 +1,6 @@
 from io import BytesIO
-import json
 from flask import Flask, render_template, redirect, session, flash, \
-    send_file, jsonify, request
+    send_file, jsonify, request, url_for
 from flask_bootstrap import Bootstrap
 from flask_login import login_user, LoginManager, logout_user
 from flask_restful import reqparse, abort, Api, Resource
@@ -44,8 +43,9 @@ class Author(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_name = db.Column(db.String(240), unique=False, nullable=False)
     full_name = db.Column(db.String(240), unique=False, nullable=False)
-    image = db.Column(db.LargeBinary(), nullable=True)
+    have_image = db.Column(db.Boolean(), default=False)
     description = db.Column(db.String(1024), unique=False, nullable=True)
+    image_extension = db.Column(db.String(120), unique=False, nullable=False, default='')
 
     def __repr__(self):
         return '{}|||{}|||{}|||{}'.format(
@@ -96,12 +96,24 @@ def register_user(username1, email1, password1):
 def add_author(display_name, full_name, description, image):
     if type(image).__name__ == 'FileStorage':
         image_data = image.read()
+        image_name = image.filename
+        has_image = True
     else:
-        image_data = 0
+        has_image = False
+    if has_image:
+        if '.' in image_name:
+            extension = image_name.split('.')[-1]
+        else:
+            extension = ''
+    else:
+        extension = ''
     author = Author(display_name=display_name, full_name=full_name,
-                    image=image_data, description=description)
+                    have_image=has_image, image_extension=extension, description=description)
     db.session.add(author)
     db.session.commit()
+    self_id = str(author.id)
+    with open('{}'.format('static/author_img/{}.{}'.format(self_id, extension)), 'wb') as saving_image:
+        saving_image.write(image_data)
     return
 
 
