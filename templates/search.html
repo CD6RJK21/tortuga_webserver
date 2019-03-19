@@ -14,7 +14,7 @@
             $('#search_results_authors').DataTable();
         } );
     </script>
-    <h1>Поиск книги</h1>
+    <h1>Поиск</h1>
     <form action="" method="post" novalidate enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <form class="navbar-brand" method="get"
@@ -53,7 +53,7 @@
             </tbody>
             </table>
         {% else %}
-            <h3>По вашему запросу ничего не найдено</h3>
+            <h5>По вашему запросу ничего не найдено</h5>
         {% endif %}
         <h4>Авторы</h4>
         {% if authors %}
@@ -72,7 +72,7 @@
             </tbody>
             </table>
         {% else %}
-            <h3>По вашему запросу ничего не найдено</h3>
+            <h5>По вашему запросу ничего не найдено</h5>
         {% endif %}
     </form>
 {% endblock %}

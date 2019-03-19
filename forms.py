@@ -25,7 +25,7 @@ class SignUpForm(FlaskForm):
 
 
 class SearchForm(FlaskForm):
-    request = StringField('Поиск книги', validators=[DataRequired()])
+    request = StringField('Поиск', validators=[DataRequired()])
 
 
 class AuthorRegisterForm(FlaskForm):

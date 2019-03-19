@@ -506,7 +506,8 @@ def author_page(id):
     author_names = author.display_name.split() + author.full_name.split()
     books = []
     for name in author_names:
-        books += Book.query.filter(Book.author.ilike(f'%{name}%')).all()
+        if len(name) >= 3:
+            books += Book.query.filter(Book.author.ilike(f'%{name}%')).all()
     # books = Book.query.filter(
     #     Book.author.ilike(f'%{author.display_name}%') | Book.author.ilike(
     #         f'%{author.full_name}%'))
