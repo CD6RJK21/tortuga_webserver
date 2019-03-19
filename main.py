@@ -513,10 +513,6 @@ def author_page(id):
     for name in author_names:
         if len(name) >= 3:
             books += Book.query.filter(Book.author.ilike(f'%{name}%')).all()
-    # books = Book.query.filter(
-    #     Book.author.ilike(f'%{author.display_name}%') | Book.author.ilike(
-    #         f'%{author.full_name}%'))
-    # books = books.order_by(Book.author).all()
     books = list(map(lambda x: str(x).split('|||'), books))
     n = len(books)
     i = 0
