@@ -125,7 +125,7 @@ def upload_book(username1, title1, author1, book_file1):
 
 
 def download_book(id):
-    if id.isdigit():
+    if str(id).isdigit():
         try:
             id = int(id)
         except ValueError as ve:
@@ -136,7 +136,7 @@ def download_book(id):
 
 
 def get_book(id):
-    if id.isdigit():
+    if str(id).isdigit():
         try:
             id = int(id)
         except ValueError as ve:
@@ -146,7 +146,7 @@ def get_book(id):
 
 
 def delete_book(id):
-    if id.isdigit():
+    if str(id).isdigit():
         try:
             id = int(id)
         except ValueError as ve:
@@ -156,7 +156,7 @@ def delete_book(id):
 
 
 def book_exists(id):
-    if id.isdigit():
+    if str(id).isdigit():
         try:
             id = int(id)
         except ValueError as ve:
@@ -167,7 +167,7 @@ def book_exists(id):
 
 
 def user_exists(id):
-    if id.isdigit():
+    if str(id).isdigit():
         try:
             id = int(id)
         except ValueError as ve:
@@ -178,7 +178,7 @@ def user_exists(id):
 
 
 def get_username(id):
-    if id.isdigit():
+    if str(id).isdigit():
         try:
             id = int(id)
         except ValueError as ve:
@@ -242,24 +242,36 @@ class BookSearch(Resource):
                 if books.count(book) >= 2:
                     books.remove(book)
 
-            books1 = {}
+            books1 = []
             for book in books:
-                books1[book.id] = {
+                books1.append({
+                    'id': book.id,
                     'title': book.title,
                     'author': book.author,
                     'username': book.username,
-                }
+                })
             return jsonify({'books': books1})
         else:
             return jsonify({'error': 'empty request'})
+
+
+class DownloadBook(Resource):
+    def get(self, book_id):
+        if book_exists(book_id):
+            book = Book.query.filter_by(id=book_id).first()
+            data = book.book_file
+            file_name = book.file_name
+            return jsonify({'file_name': file_name, 'data': data})
+        return jsonify({'error': 'book with such id is not found'})
 
 # @app.errorhandler(404)
 # def abort_if_page_notfound(page_id):
 #     abort(404, message="Page {} not found".format(page_id))
 
 
-api.add_resource(Books, '/books')
+api.add_resource(Books, '/books/')
 api.add_resource(BookSearch, '/booksearch')
+api.add_resource(DownloadBook, '/download_book/<book_id>')
 
 
 # REST done
