@@ -81,8 +81,6 @@ class Book(db.Model):
     book_file = db.Column(db.LargeBinary(), nullable=False)
     file_name = db.Column(db.String(120), unique=False, nullable=False)
 
-    # author_id = db.Column(db.Integer, unique=False, nullable=False, default=0)
-
     def __repr__(self):
         return '{}|||{}|||{}|||{}'.format(
             self.author, self.title, self.username, self.id)
@@ -297,11 +295,6 @@ class DownloadBook(Resource):
             file_name = book.file_name
             return jsonify({'file_name': file_name, 'data': data})
         return jsonify({'error': 'book with such id is not found'})
-
-
-# @app.errorhandler(404)
-# def abort_if_page_notfound(page_id):
-#     abort(404, message="Page {} not found".format(page_id))
 
 
 api.add_resource(Books, '/books/')
