@@ -1,6 +1,7 @@
 from io import BytesIO
+
 from flask import Flask, render_template, redirect, session, flash, \
-    send_file, jsonify, request, url_for
+    send_file, jsonify, request
 from flask_bootstrap import Bootstrap
 from flask_login import login_user, LoginManager, logout_user
 from flask_restful import reqparse, abort, Api, Resource
@@ -45,7 +46,8 @@ class Author(db.Model):
     full_name = db.Column(db.String(240), unique=False, nullable=False)
     have_image = db.Column(db.Boolean(), default=False)
     description = db.Column(db.String(1024), unique=False, nullable=True)
-    image_extension = db.Column(db.String(120), unique=False, nullable=False, default='')
+    image_extension = db.Column(db.String(120), unique=False, nullable=False,
+                                default='')
 
     def __repr__(self):
         return '{}|||{}|||{}|||{}'.format(
@@ -78,6 +80,7 @@ class Book(db.Model):
     author = db.Column(db.String(120), unique=False, nullable=False)
     book_file = db.Column(db.LargeBinary(), nullable=False)
     file_name = db.Column(db.String(120), unique=False, nullable=False)
+
     # author_id = db.Column(db.Integer, unique=False, nullable=False, default=0)
 
     def __repr__(self):
@@ -108,11 +111,14 @@ def add_author(display_name, full_name, description, image):
     else:
         extension = ''
     author = Author(display_name=display_name, full_name=full_name,
-                    have_image=has_image, image_extension=extension, description=description)
+                    have_image=has_image, image_extension=extension,
+                    description=description)
     db.session.add(author)
     db.session.commit()
     self_id = str(author.id)
-    with open('{}'.format('static/author_img/{}.{}'.format(self_id, extension)), 'wb') as saving_image:
+    with open(
+            '{}'.format('static/author_img/{}.{}'.format(self_id, extension)),
+            'wb') as saving_image:
         saving_image.write(image_data)
     return
 
@@ -242,7 +248,8 @@ class Books(Resource):
             return jsonify({'books': books1})
         else:
             if book_exists(args.get('book_id')):
-                book = Book.query.filter_by(id=int((args.get('book_id')))).first()
+                book = Book.query.filter_by(
+                    id=int((args.get('book_id')))).first()
                 books1 = {
                     'id': book.id,
                     'title': book.title,
@@ -290,6 +297,7 @@ class DownloadBook(Resource):
             file_name = book.file_name
             return jsonify({'file_name': file_name, 'data': data})
         return jsonify({'error': 'book with such id is not found'})
+
 
 # @app.errorhandler(404)
 # def abort_if_page_notfound(page_id):
@@ -381,12 +389,14 @@ def search():
             i += 1
 
         authors = Author.query.filter(
-            Author.full_name.ilike(f'%{request1}%') | Author.display_name.ilike(
+            Author.full_name.ilike(
+                f'%{request1}%') | Author.display_name.ilike(
                 f'%{request1}%'))
         authors = authors.order_by(Author.display_name).all()
         authors = list(map(lambda x: str(x).split('|||'), authors))
 
-    return render_template('search.html', form=form, books=books, authors=authors,
+    return render_template('search.html', form=form, books=books,
+                           authors=authors,
                            title='Поиск')
 
 
@@ -487,7 +497,7 @@ def register_author():
     form = AuthorRegisterForm()
     if form.validate_on_submit():
         add_author(form.display_name.data, form.full_name.data,
-                        form.description.data, form.image.data)
+                   form.description.data, form.image.data)
         flash('Автор успешно добавлен.')
         return redirect("/index")
     return render_template('register_author.html', title='Добавление автора',
