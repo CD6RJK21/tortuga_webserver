@@ -258,7 +258,7 @@ class BookSearch(Resource):
 #     abort(404, message="Page {} not found".format(page_id))
 
 
-api.add_resource(Books, '/books/')
+api.add_resource(Books, '/books')
 api.add_resource(BookSearch, '/booksearch')
 
 
