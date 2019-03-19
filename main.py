@@ -93,9 +93,13 @@ def register_user(username1, email1, password1):
     return
 
 
-def add_author(display_name, full_name, image, description):
+def add_author(display_name, full_name, description, image):
+    if type(image).__name__ == 'FileStorage':
+        image_data = image.read()
+    else:
+        image_data = 0
     author = Author(display_name=display_name, full_name=full_name,
-                    image=image, description=description)
+                    image=image_data, description=description)
     db.session.add(author)
     db.session.commit()
     return
@@ -415,18 +419,9 @@ def all_users():
         abort(403, message="Эта страница доступна только администратору")
         return redirect('/')
     users = User.query.all()
-    users = list(map(lambda x: str(x), users))
-    users1, users2 = [], []
-    col = 1
-    for user in users:
-        user = user.split('|||')
-        if col == 1:
-            users1.append(user)
-        else:
-            users2.append(user)
-        col = (col + 1) % 2
+    users = list(map(lambda x: str(x).split('|||'), users))
     return render_template('all_users.html', title='Список пользователей',
-                           users1=users1, users2=users2)
+                           users=users)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -447,7 +442,21 @@ def upload():
         else:
             flash('Такая книга уже есть.')
     return render_template('upload.html', title='Загрузка книги',
-                           form=form, username='Adasd')  # session['username']
+                           form=form, username=session['username'])
+
+
+@app.route('/register_author', methods=['GET', 'POST'])
+def register_author():
+    if 'username' not in session:
+        return redirect('/login')
+    form = AuthorRegisterForm()
+    if form.validate_on_submit():
+        add_author(form.display_name.data, form.full_name.data,
+                        form.description.data, form.image.data)
+        flash('Автор успешно добавлен.')
+        return redirect("/index")
+    return render_template('upload.html', title='Добавление автора',
+                           form=form, username=session['username'])
 
 
 if __name__ == '__main__':

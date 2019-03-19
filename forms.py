@@ -26,3 +26,11 @@ class SignUpForm(FlaskForm):
 
 class SearchForm(FlaskForm):
     request = StringField('Поиск книги', validators=[DataRequired()])
+
+
+class AuthorRegisterForm(FlaskForm):
+    display_name = StringField('Краткое имя', validators=[DataRequired()])
+    full_name = TextAreaField('Полное имя', validators=[DataRequired()])
+    description = TextAreaField('Биография', validators=[DataRequired()])
+    image = FileField('Фото')
+    submit = SubmitField('Добавить')
