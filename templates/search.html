@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <meta charset="utf-8">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
     <script>
@@ -11,7 +12,12 @@
     <h1>Поиск книги</h1>
     <form action="" method="post" novalidate enctype="multipart/form-data">
         {{ form.hidden_tag() }}
-        {{ wtf.quick_form(form) }}
+        <form class="navbar-brand" method="get"
+                    action="/search">
+            <div class="form-group">
+                {{ wtf.quick_form(searchform) }}
+            </div>
+        </form>
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
         {% if books %}
             <table id="search_results" class="display">

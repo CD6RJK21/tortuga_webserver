@@ -12,11 +12,10 @@
     <header>
       <nav class="navbar navbar-dark bg-dark">
         <a class="navbar-brand" href="/">Электронная библиотека</a>
-        <form class="navbar-brand" method="post"
+        <form class="navbar-brand" method="get"
                     action="/search">
             <div class="form-group">
-                {{searchform.request.label}}
-                {{searchform.request}}<br>
+                {{ wtf.quick_form(searchform) }}
             </div>
         </form>
         <a class="navbar-brand" href="/upload">Загрузить книгу</a>

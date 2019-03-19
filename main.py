@@ -1,7 +1,7 @@
 from io import BytesIO
 
 from flask import Flask, render_template, redirect, session, flash, \
-    send_file, jsonify
+    send_file, jsonify, request
 from flask_bootstrap import Bootstrap
 from flask_login import login_user, LoginManager, logout_user
 from flask_restful import reqparse, abort, Api, Resource
@@ -77,11 +77,11 @@ class Book(db.Model):
     author = db.Column(db.String(120), unique=False, nullable=False)
     book_file = db.Column(db.LargeBinary(), nullable=False)
     file_name = db.Column(db.String(120), unique=False, nullable=False)
-    author_id = db.Column(db.Integer, unique=False, nullable=False, default=0)
+    # author_id = db.Column(db.Integer, unique=False, nullable=False, default=0)
 
     def __repr__(self):
-        return '{}|||{}|||{}|||{}|||{}'.format(
-            self.author, self.title, self.username, self.id, self.author_id)
+        return '{}|||{}|||{}|||{}'.format(
+            self.author, self.title, self.username, self.id)
 
 
 def register_user(username1, email1, password1):
@@ -243,10 +243,10 @@ class BookSearch(Resource):
         pass
 
 
-@app.errorhandler(404)
-def abort_if_page_notfound(page_id):
-    abort(404, message="Page {} not found".format(page_id))
-    print(page_id)
+# @app.errorhandler(404)
+# def abort_if_page_notfound(page_id):
+#     abort(404, message="Page {} not found".format(page_id))
+#     print(page_id)
 
 
 api.add_resource(BooksList, '/books')
@@ -315,13 +315,13 @@ def index():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    request1 = str(request.args['request'])
     form = SearchForm()
-    request = form.request.data
     books = []
-    if request != '':
+    if request1 != '':
         books = Book.query.filter(
-            Book.title.ilike(f'%{request}%') | Book.author.ilike(
-                f'%{request}%'))
+            Book.title.ilike(f'%{request1}%') | Book.author.ilike(
+                f'%{request1}%'))
         books = books.order_by(Book.author).all()
         for book in books:
             if books.count(book) >= 2:
