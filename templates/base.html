@@ -19,6 +19,7 @@
             </div>
         </form>
         <a class="navbar-brand" href="/upload">Загрузить книгу</a>
+        <a class="navbar-brand" href="/register_author">Добавить автора</a>
         {% if 'is_admin' in session and session.get('is_admin') %}
             <a class="navbar-brand" href="/all_users">Список всех пользователей</a>
         {% endif %}

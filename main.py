@@ -171,6 +171,17 @@ def delete_book(id):
         db.session.commit()  # db.session.delete(user)
 
 
+def author_exists(id):
+    if str(id).isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        exists = Author.query.filter_by(id=id).scalar() is not None
+        return exists
+    return False
+
+
 def book_exists(id):
     if str(id).isdigit():
         try:
@@ -363,7 +374,17 @@ def search():
             if books.count(book) >= 2:
                 books.remove(book)
         books = list(map(lambda x: str(x).split('|||'), books))
-    return render_template('search.html', form=form, books=books,
+
+        authors = Author.query.filter(
+            Author.full_name.ilike(f'%{request1}%') | Author.display_name.ilike(
+                f'%{request1}%'))
+        authors = authors.order_by(Author.display_name).all()
+        for author in authors:
+            if authors.count(author) >= 2:
+                authors.remove(author)
+        authors = list(map(lambda x: str(x).split('|||'), authors))
+
+    return render_template('search.html', form=form, books=books, authors=authors,
                            title='Поиск')
 
 
@@ -467,8 +488,41 @@ def register_author():
                         form.description.data, form.image.data)
         flash('Автор успешно добавлен.')
         return redirect("/index")
-    return render_template('upload.html', title='Добавление автора',
+    return render_template('register_author.html', title='Добавление автора',
                            form=form, username=session['username'])
+
+
+@app.route('/author/<id>', methods=['GET'])
+def author_page(id):
+    if not author_exists(int(id)):
+        flash('Автора с таким id не существует.')
+        return redirect('/')
+    author = Author.query.filter_by(id=id).first()
+    if author.have_image:
+        image = str(author.id) + '.' + author.image_extension
+        image = '/static/author_img/' + image
+    else:
+        image = ''
+    author_names = author.display_name.split() + author.full_name.split()
+    books = []
+    for name in author_names:
+        books += Book.query.filter(Book.author.ilike(f'%{name}%')).all()
+    # books = Book.query.filter(
+    #     Book.author.ilike(f'%{author.display_name}%') | Book.author.ilike(
+    #         f'%{author.full_name}%'))
+    # books = books.order_by(Book.author).all()
+    books = list(map(lambda x: str(x).split('|||'), books))
+    n = len(books)
+    i = 0
+    while i < n:
+        if books.count(books[i]) >= 2:
+            books.remove(books[i])
+            n -= 1
+            i -= 1
+        i += 1
+    return render_template('author.html', title=author.display_name,
+                           full_name=author.full_name, image=image,
+                           description=author.description, books=books)
 
 
 if __name__ == '__main__':

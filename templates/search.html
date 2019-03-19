@@ -9,6 +9,11 @@
             $('#search_results').DataTable();
         } );
     </script>
+    <script>
+        $(document).ready( function () {
+            $('#search_results_authors').DataTable();
+        } );
+    </script>
     <h1>Поиск книги</h1>
     <form action="" method="post" novalidate enctype="multipart/form-data">
         {{ form.hidden_tag() }}
@@ -19,6 +24,7 @@
             </div>
         </form>
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+        <h4>Книги</h4>
         {% if books %}
             <table id="search_results" class="display">
             <thead>
@@ -42,6 +48,25 @@
                     {% else %}
                         <th>Удалить</th>
                     {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        {% else %}
+            <h3>По вашему запросу ничего не найдено</h3>
+        {% endif %}
+        <h4>Авторы</h4>
+        {% if authors %}
+            <table id="search_results_authors" class="display">
+            <thead>
+                <tr>
+                    <th>Автор</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for author in authors %}
+                    <tr>
+                    <th><a href="/author/{{author[0]}}">{{author[1]}}</a></th>
                     </tr>
                 {% endfor %}
             </tbody>
