@@ -1,5 +1,5 @@
 from io import BytesIO
-
+import json
 from flask import Flask, render_template, redirect, session, flash, \
     send_file, jsonify, request
 from flask_bootstrap import Bootstrap
@@ -15,6 +15,7 @@ app.secret_key = '0bcfb47472328e90fbf26d4ef88d9d90'
 app.config['SECRET_KEY'] = '0bcfb47472328e90fbf26d4ef88d9d90'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JSON_AS_ASCII'] = False
 
 Bootstrap(app)
 
@@ -124,58 +125,67 @@ def upload_book(username1, title1, author1, book_file1):
 
 
 def download_book(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    book = Book.query.filter_by(id=id).first()
-    with open(book.file_name, 'wb') as file:
-        file.write(book.book_file)
+    if id.isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        book = Book.query.filter_by(id=id).first()
+        with open(book.file_name, 'wb') as file:
+            file.write(book.book_file)
 
 
 def get_book(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    book = Book.query.filter_by(id=id).first()
-    return book
+    if id.isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        book = Book.query.filter_by(id=id).first()
+        return book
 
 
 def delete_book(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    book = Book.query.filter_by(id=id).delete()
-    db.session.commit()  # db.session.delete(user)
+    if id.isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        book = Book.query.filter_by(id=id).delete()
+        db.session.commit()  # db.session.delete(user)
 
 
 def book_exists(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    exists = Book.query.filter_by(id=id).scalar() is not None
-    return exists
+    if id.isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        exists = Book.query.filter_by(id=id).scalar() is not None
+        return exists
+    return False
 
 
 def user_exists(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    exists = User.query.filter_by(id=id).scalar() is not None
-    return exists
+    if id.isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        exists = User.query.filter_by(id=id).scalar() is not None
+        return exists
+    return False
 
 
 def get_username(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    username = User.query.filter_by(id=id).username is not None
-    return username
+    if id.isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        username = User.query.filter_by(id=id).username is not None
+        return username
+    return 'No_such_username'
 
 
 db.create_all()
@@ -187,71 +197,69 @@ db.create_all()
 # REST classes
 
 class Books(Resource):
-    def get(self, book_id):
-        if book_exists(book_id):
-            books = get_book(book_id)
-            books = str(books)
-            return jsonify({'books': books})
-
-    def delete(self, book_id):
-        if book_exists(book_id):
-            delete_book(book_id)
-            return jsonify({'success': 'OK'})
-
-
-class BooksList(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('title', required=True)
-    parser.add_argument('author', required=True)
-    parser.add_argument('username', required=True)
+    parser.add_argument('book_id', required=False)
 
     def get(self):
+        args = self.parser.parse_args()
         books = Book.query.all()
-        books = list(map(lambda x: str(x), books))
-        return jsonify({'books': books})
-
-    def post(self):
-        pass
-        # args = self.parser.parse_args()
-        # news = NewsModel(db.get_connection())
-        # upload_book()
-        # news.insert(args['title'], args['content'], args['user_id'])
-        # return jsonify({'success': 'OK'})
+        # books = list(map(lambda x: str(x), books))
+        if args.get('book_id') is None:
+            books1 = {}
+            for book in books:
+                books1[book.id] = {
+                    'title': book.title,
+                    'author': book.author,
+                    'username': book.username,
+                }
+            return jsonify({'books': books1})
+        else:
+            if book_exists(args.get('book_id')):
+                book = Book.query.filter_by(id=int((args.get('book_id')))).first()
+                books1 = {
+                    'id': book.id,
+                    'title': book.title,
+                    'author': book.author,
+                    'username': book.username,
+                }
+                return jsonify({'books': books1})
 
 
 class BookSearch(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('request', required=True)
 
-    def get(self, request):
-        form = SearchForm()
-        books = Book.query.all()
-        books = list(map(lambda x: str(x), books))
-        books = Book.query.filter(
-            Book.title.ilike(f'%{request}%') | Book.author.ilike(
-                f'%{request}%'))
-        books = books.order_by(Book.author).all()
-        for book in books:
-            if books.count(book) >= 2:
-                books.remove(book)
-        books = list(map(lambda x: str(x).split('|||'), books))
-        return jsonify({'books': books})
+    def get(self):
+        args = self.parser.parse_args()
+        request1 = str(args['request'])
+        books = []
+        if request1 != '':
+            books = Book.query.filter(
+                Book.title.ilike(f'%{request1}%') | Book.author.ilike(
+                    f'%{request1}%'))
+            books = books.order_by(Book.author).all()
+            for book in books:
+                if books.count(book) >= 2:
+                    books.remove(book)
 
-# return render_template('search.html', form=form, books=books, title='Поиск')
-
-    def post(self):
-        pass
-
+            books1 = {}
+            for book in books:
+                books1[book.id] = {
+                    'title': book.title,
+                    'author': book.author,
+                    'username': book.username,
+                }
+            return jsonify({'books': books1})
+        else:
+            return jsonify({'error': 'empty request'})
 
 # @app.errorhandler(404)
 # def abort_if_page_notfound(page_id):
 #     abort(404, message="Page {} not found".format(page_id))
-#     print(page_id)
 
 
-api.add_resource(BooksList, '/books')
-api.add_resource(Books, '/books/<int:book_id>')
-api.add_resource(BookSearch, '/booksearch/<request>')
+api.add_resource(Books, '/books/')
+api.add_resource(BookSearch, '/booksearch')
 
 
 # REST done
