@@ -370,18 +370,20 @@ def search():
             Book.title.ilike(f'%{request1}%') | Book.author.ilike(
                 f'%{request1}%'))
         books = books.order_by(Book.author).all()
-        for book in books:
-            if books.count(book) >= 2:
-                books.remove(book)
         books = list(map(lambda x: str(x).split('|||'), books))
+        n = len(books)
+        i = 0
+        while i < n:
+            if books.count(books[i]) >= 2:
+                books.remove(books[i])
+                n -= 1
+                i -= 1
+            i += 1
 
         authors = Author.query.filter(
             Author.full_name.ilike(f'%{request1}%') | Author.display_name.ilike(
                 f'%{request1}%'))
         authors = authors.order_by(Author.display_name).all()
-        for author in authors:
-            if authors.count(author) >= 2:
-                authors.remove(author)
         authors = list(map(lambda x: str(x).split('|||'), authors))
 
     return render_template('search.html', form=form, books=books, authors=authors,

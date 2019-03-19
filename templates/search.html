@@ -17,12 +17,6 @@
     <h1>Поиск</h1>
     <form action="" method="post" novalidate enctype="multipart/form-data">
         {{ form.hidden_tag() }}
-        <form class="navbar-brand" method="get"
-                    action="/search">
-            <div class="form-group">
-                {{ wtf.quick_form(searchform) }}
-            </div>
-        </form>
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
         <h4>Книги</h4>
         {% if books %}
@@ -61,12 +55,14 @@
             <thead>
                 <tr>
                     <th>Автор</th>
+                    <th>Полное имя</th>
                 </tr>
             </thead>
             <tbody>
                 {% for author in authors %}
                     <tr>
                     <th><a href="/author/{{author[0]}}">{{author[1]}}</a></th>
+                    <th><a href="/author/{{author[0]}}">{{author[2]}}</a></th>
                     </tr>
                 {% endfor %}
             </tbody>
