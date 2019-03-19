@@ -5,20 +5,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>{{title}}</title>
 </head>
   <body>
     <header>
       <nav class="navbar navbar-dark bg-dark">
         <a class="navbar-brand" href="/">Электронная библиотека</a>
-        <form class="navbar-brand" method="post"
+        <form class="navbar-brand" method="get"
                     action="/search">
             <div class="form-group">
-                {{searchform.request.label}}
-                {{searchform.request}}<br>
+                {{ wtf.quick_form(searchform) }}
             </div>
         </form>
         <a class="navbar-brand" href="/upload">Загрузить книгу</a>
+        <a class="navbar-brand" href="/register_author">Добавить автора</a>
         {% if 'is_admin' in session and session.get('is_admin') %}
             <a class="navbar-brand" href="/all_users">Список всех пользователей</a>
         {% endif %}

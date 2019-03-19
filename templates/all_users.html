@@ -1,46 +1,33 @@
 {% extends "base.html" %}
  
 {% block content %}
-    <script src="static/search.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready( function () {
+            $('#users_list').DataTable();
+        } );
+    </script>
     <h1>Список пользователей</h1>
-    <style>
-     ul {
-      float: left;
-     }
-     ul.table table {
-      float: left;
-     }
-    </style>
-    {% if users1 %}
-        <ul class="list-group" >
-            <table class="sortable" >
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+    {% if users %}
+        <table id="users_list" class="display">
+        <thead>
             <tr>
                 <th>Логин</th>
+                <th>Сделать админом</th>
+                <th>Удалить</th>
             </tr>
-            {% for user in users1 %}
+        </thead>
+        <tbody>
+            {% for user in users %}
                 <tr>
-                <th><li class="list-group-item">{{user[1]}}</li></th>
+                <th>{{user[1]}}</th>
                 <th><a class="navbar-brand" href="/set_user_admin/{{user[0]}}">Сделать админом</a></th>
                 <th><a class="navbar-brand" href="/delete_user/{{user[0]}}">Удалить</a></th>
                 </tr>
             {% endfor %}
-            </table>
-        </ul>
-    {% endif %}
-    {% if users2 %}
-        <ul class="list-group">
-            <table class="sortable" >
-            <tr>
-                <th>Логин</th>
-            </tr>
-            {% for user in users2 %}
-                <tr>
-                <th><li class="list-group-item">{{user[1]}}</li></th>
-                <th><a class="navbar-brand" href="/set_user_admin/{{user[0]}}">Сделать админом</a></th>
-                <th><a class="navbar-brand" href="/delete_user/{{user[0]}}">Удалить</a></th>
-                </tr>
-            {% endfor %}
-            </table>
-        </ul>
+        </tbody>
+        </table>
     {% endif %}
 {% endblock %}

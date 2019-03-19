@@ -1,7 +1,6 @@
 from io import BytesIO
-
 from flask import Flask, render_template, redirect, session, flash, \
-    send_file, jsonify
+    send_file, jsonify, request, url_for
 from flask_bootstrap import Bootstrap
 from flask_login import login_user, LoginManager, logout_user
 from flask_restful import reqparse, abort, Api, Resource
@@ -15,6 +14,7 @@ app.secret_key = '0bcfb47472328e90fbf26d4ef88d9d90'
 app.config['SECRET_KEY'] = '0bcfb47472328e90fbf26d4ef88d9d90'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JSON_AS_ASCII'] = False
 
 Bootstrap(app)
 
@@ -39,6 +39,19 @@ def render_template(html, **kwargs):
 
 
 # database begins
+class Author(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    display_name = db.Column(db.String(240), unique=False, nullable=False)
+    full_name = db.Column(db.String(240), unique=False, nullable=False)
+    have_image = db.Column(db.Boolean(), default=False)
+    description = db.Column(db.String(1024), unique=False, nullable=True)
+    image_extension = db.Column(db.String(120), unique=False, nullable=False, default='')
+
+    def __repr__(self):
+        return '{}|||{}|||{}|||{}'.format(
+            self.id, self.display_name, self.full_name, self.description)
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -65,6 +78,7 @@ class Book(db.Model):
     author = db.Column(db.String(120), unique=False, nullable=False)
     book_file = db.Column(db.LargeBinary(), nullable=False)
     file_name = db.Column(db.String(120), unique=False, nullable=False)
+    # author_id = db.Column(db.Integer, unique=False, nullable=False, default=0)
 
     def __repr__(self):
         return '{}|||{}|||{}|||{}'.format(
@@ -76,6 +90,31 @@ def register_user(username1, email1, password1):
                 password_hash=generate_password_hash(password1))
     db.session.add(user)
     db.session.commit()
+    return
+
+
+def add_author(display_name, full_name, description, image):
+    if type(image).__name__ == 'FileStorage':
+        image_data = image.read()
+        image_name = image.filename
+        has_image = True
+    else:
+        has_image = False
+    if has_image:
+        if '.' in image_name:
+            extension = image_name.split('.')[-1]
+        else:
+            extension = ''
+    else:
+        extension = ''
+    author = Author(display_name=display_name, full_name=full_name,
+                    have_image=has_image, image_extension=extension, description=description)
+    db.session.add(author)
+    db.session.commit()
+    self_id = str(author.id)
+    with open('{}'.format('static/author_img/{}.{}'.format(self_id, extension)), 'wb') as saving_image:
+        saving_image.write(image_data)
+    return
 
 
 def make_user_admin(id):
@@ -102,58 +141,78 @@ def upload_book(username1, title1, author1, book_file1):
 
 
 def download_book(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    book = Book.query.filter_by(id=id).first()
-    with open(book.file_name, 'wb') as file:
-        file.write(book.book_file)
+    if str(id).isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        book = Book.query.filter_by(id=id).first()
+        with open(book.file_name, 'wb') as file:
+            file.write(book.book_file)
 
 
 def get_book(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    book = Book.query.filter_by(id=id).first()
-    return book
+    if str(id).isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        book = Book.query.filter_by(id=id).first()
+        return book
 
 
 def delete_book(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    book = Book.query.filter_by(id=id).delete()
-    db.session.commit()  # db.session.delete(user)
+    if str(id).isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        book = Book.query.filter_by(id=id).delete()
+        db.session.commit()  # db.session.delete(user)
+
+
+def author_exists(id):
+    if str(id).isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        exists = Author.query.filter_by(id=id).scalar() is not None
+        return exists
+    return False
 
 
 def book_exists(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    exists = Book.query.filter_by(id=id).scalar() is not None
-    return exists
+    if str(id).isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        exists = Book.query.filter_by(id=id).scalar() is not None
+        return exists
+    return False
 
 
 def user_exists(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    exists = User.query.filter_by(id=id).scalar() is not None
-    return exists
+    if str(id).isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        exists = User.query.filter_by(id=id).scalar() is not None
+        return exists
+    return False
 
 
 def get_username(id):
-    try:
-        id = int(id)
-    except ValueError as ve:
-        print(ve)
-    username = User.query.filter_by(id=id).username is not None
-    return username
+    if str(id).isdigit():
+        try:
+            id = int(id)
+        except ValueError as ve:
+            print(ve)
+        username = User.query.filter_by(id=id).username is not None
+        return username
+    return 'No_such_username'
 
 
 db.create_all()
@@ -165,71 +224,81 @@ db.create_all()
 # REST classes
 
 class Books(Resource):
-    def get(self, book_id):
-        if book_exists(book_id):
-            books = get_book(book_id)
-            books = str(books)
-            return jsonify({'books': books})
-
-    def delete(self, book_id):
-        if book_exists(book_id):
-            delete_book(book_id)
-            return jsonify({'success': 'OK'})
-
-
-class BooksList(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('title', required=True)
-    parser.add_argument('author', required=True)
-    parser.add_argument('username', required=True)
+    parser.add_argument('book_id', required=False)
 
     def get(self):
+        args = self.parser.parse_args()
         books = Book.query.all()
-        books = list(map(lambda x: str(x), books))
-        return jsonify({'books': books})
-
-    def post(self):
-        pass
-        # args = self.parser.parse_args()
-        # news = NewsModel(db.get_connection())
-        # upload_book()
-        # news.insert(args['title'], args['content'], args['user_id'])
-        # return jsonify({'success': 'OK'})
+        # books = list(map(lambda x: str(x), books))
+        if args.get('book_id') is None:
+            books1 = {}
+            for book in books:
+                books1[book.id] = {
+                    'title': book.title,
+                    'author': book.author,
+                    'username': book.username,
+                }
+            return jsonify({'books': books1})
+        else:
+            if book_exists(args.get('book_id')):
+                book = Book.query.filter_by(id=int((args.get('book_id')))).first()
+                books1 = {
+                    'id': book.id,
+                    'title': book.title,
+                    'author': book.author,
+                    'username': book.username,
+                }
+                return jsonify({'books': books1})
 
 
 class BookSearch(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('request', required=True)
 
-    def get(self, request):
-        form = SearchForm()
-        books = Book.query.all()
-        books = list(map(lambda x: str(x), books))
-        books = Book.query.filter(
-            Book.title.ilike(f'%{request}%') | Book.author.ilike(
-                f'%{request}%'))
-        books = books.order_by(Book.author).all()
-        for book in books:
-            if books.count(book) >= 2:
-                books.remove(book)
-        books = list(map(lambda x: str(x).split('|||'), books))
-        return jsonify({'books': books})
+    def get(self):
+        args = self.parser.parse_args()
+        request1 = str(args['request'])
+        books = []
+        if request1 != '':
+            books = Book.query.filter(
+                Book.title.ilike(f'%{request1}%') | Book.author.ilike(
+                    f'%{request1}%'))
+            books = books.order_by(Book.author).all()
+            for book in books:
+                if books.count(book) >= 2:
+                    books.remove(book)
 
-    # return render_template('search.html', form=form, books=books, title='Поиск')
+            books1 = []
+            for book in books:
+                books1.append({
+                    'id': book.id,
+                    'title': book.title,
+                    'author': book.author,
+                    'username': book.username,
+                })
+            return jsonify({'books': books1})
+        else:
+            return jsonify({'error': 'empty request'})
 
-    def post(self):
-        pass
+
+class DownloadBook(Resource):
+    def get(self, book_id):
+        if book_exists(book_id):
+            book = Book.query.filter_by(id=book_id).first()
+            data = book.book_file
+            file_name = book.file_name
+            return jsonify({'file_name': file_name, 'data': data})
+        return jsonify({'error': 'book with such id is not found'})
+
+# @app.errorhandler(404)
+# def abort_if_page_notfound(page_id):
+#     abort(404, message="Page {} not found".format(page_id))
 
 
-@app.errorhandler(404)
-def abort_if_page_notfound(page_id):
-    abort(404, message="Page {} not found".format(page_id))
-    print(page_id)
-
-
-api.add_resource(BooksList, '/books')
-api.add_resource(Books, '/books/<int:book_id>')
-api.add_resource(BookSearch, '/booksearch/<request>')
+api.add_resource(Books, '/books/')
+api.add_resource(BookSearch, '/booksearch')
+api.add_resource(DownloadBook, '/download_book/<book_id>')
 
 
 # REST done
@@ -293,19 +362,31 @@ def index():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    request1 = str(request.args['request'])
     form = SearchForm()
-    request = form.request.data
     books = []
-    if request != '':
+    if request1 != '':
         books = Book.query.filter(
-            Book.title.ilike(f'%{request}%') | Book.author.ilike(
-                f'%{request}%'))
+            Book.title.ilike(f'%{request1}%') | Book.author.ilike(
+                f'%{request1}%'))
         books = books.order_by(Book.author).all()
-        for book in books:
-            if books.count(book) >= 2:
-                books.remove(book)
         books = list(map(lambda x: str(x).split('|||'), books))
-    return render_template('search.html', form=form, books=books,
+        n = len(books)
+        i = 0
+        while i < n:
+            if books.count(books[i]) >= 2:
+                books.remove(books[i])
+                n -= 1
+                i -= 1
+            i += 1
+
+        authors = Author.query.filter(
+            Author.full_name.ilike(f'%{request1}%') | Author.display_name.ilike(
+                f'%{request1}%'))
+        authors = authors.order_by(Author.display_name).all()
+        authors = list(map(lambda x: str(x).split('|||'), authors))
+
+    return render_template('search.html', form=form, books=books, authors=authors,
                            title='Поиск')
 
 
@@ -373,18 +454,9 @@ def all_users():
         abort(403, message="Эта страница доступна только администратору")
         return redirect('/')
     users = User.query.all()
-    users = list(map(lambda x: str(x), users))
-    users1, users2 = [], []
-    col = 1
-    for user in users:
-        user = user.split('|||')
-        if col == 1:
-            users1.append(user)
-        else:
-            users2.append(user)
-        col = (col + 1) % 2
+    users = list(map(lambda x: str(x).split('|||'), users))
     return render_template('all_users.html', title='Список пользователей',
-                           users1=users1, users2=users2)
+                           users=users)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -405,7 +477,55 @@ def upload():
         else:
             flash('Такая книга уже есть.')
     return render_template('upload.html', title='Загрузка книги',
-                           form=form, username='Adasd')  # session['username']
+                           form=form, username=session['username'])
+
+
+@app.route('/register_author', methods=['GET', 'POST'])
+def register_author():
+    if 'username' not in session:
+        return redirect('/login')
+    form = AuthorRegisterForm()
+    if form.validate_on_submit():
+        add_author(form.display_name.data, form.full_name.data,
+                        form.description.data, form.image.data)
+        flash('Автор успешно добавлен.')
+        return redirect("/index")
+    return render_template('register_author.html', title='Добавление автора',
+                           form=form, username=session['username'])
+
+
+@app.route('/author/<id>', methods=['GET'])
+def author_page(id):
+    if not author_exists(int(id)):
+        flash('Автора с таким id не существует.')
+        return redirect('/')
+    author = Author.query.filter_by(id=id).first()
+    if author.have_image:
+        image = str(author.id) + '.' + author.image_extension
+        image = '/static/author_img/' + image
+    else:
+        image = ''
+    author_names = author.display_name.split() + author.full_name.split()
+    books = []
+    for name in author_names:
+        if len(name) >= 3:
+            books += Book.query.filter(Book.author.ilike(f'%{name}%')).all()
+    # books = Book.query.filter(
+    #     Book.author.ilike(f'%{author.display_name}%') | Book.author.ilike(
+    #         f'%{author.full_name}%'))
+    # books = books.order_by(Book.author).all()
+    books = list(map(lambda x: str(x).split('|||'), books))
+    n = len(books)
+    i = 0
+    while i < n:
+        if books.count(books[i]) >= 2:
+            books.remove(books[i])
+            n -= 1
+            i -= 1
+        i += 1
+    return render_template('author.html', title=author.display_name,
+                           full_name=author.full_name, image=image,
+                           description=author.description, books=books)
 
 
 if __name__ == '__main__':
