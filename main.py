@@ -463,15 +463,19 @@ def sign_up():
     user_name1 = form.username.data
     email1 = form.email.data
     password1 = form.password.data
+    password_repeat = form.password_repeat.data
     if form.submit.data:
         user_name_free = False if list(
             User.query.filter(User.username == user_name1)) else True
         email_free = False if list(
             User.query.filter(User.email == email1)) else True
         if user_name_free and email_free:
-            register_user(user_name1, email1, password1)
-            flash('Вы успешно зарегестрированы.')
-            return redirect("/login")
+            if password_repeat == password1:
+                register_user(user_name1, email1, password1)
+                flash('Вы успешно зарегестрированы.')
+                return redirect("/login")
+            else:
+                flash('Введённые пароли не совпадают')
         else:
             flash('Имя пользователя или почта заняты.')
     return render_template('sign_up.html', title='Регистрация', form=form)

@@ -21,6 +21,7 @@ class SignUpForm(FlaskForm):
     username = StringField('Логин', validators=[DataRequired()])
     email = StringField('Почта', validators=[Email()])
     password = PasswordField('Пароль', validators=[DataRequired()])
+    password_repeat = PasswordField('Повтор пароля', validators=[DataRequired()])
     submit = SubmitField('Зарегистрироваться')
 
 
