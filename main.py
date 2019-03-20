@@ -1,5 +1,5 @@
 from io import BytesIO
-
+from os import remove
 from flask import Flask, render_template, redirect, session, flash, \
     send_file, jsonify, request
 from flask_bootstrap import Bootstrap
@@ -338,6 +338,11 @@ def delete_author(author_id):
             id = int(author_id)
         except ValueError as ve:
             print(ve)
+        author = Author.query.filter_by(id=id).first()
+        if author.have_image:
+            image = str(author.id) + '.' + author.image_extension
+            image = 'static/author_img/' + image
+            remove(image)
         author = Author.query.filter_by(id=id).delete()
         db.session.commit()
         flash('Автор успешно удалён')
