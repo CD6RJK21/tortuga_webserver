@@ -56,6 +56,7 @@
                 <tr>
                     <th>Автор</th>
                     <th>Полное имя</th>
+                    <th>Удалить</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,6 +64,11 @@
                     <tr>
                     <th><a href="/author/{{author[0]}}">{{author[1]}}</a></th>
                     <th><a href="/author/{{author[0]}}">{{author[2]}}</a></th>
+                    {% if session.get('is_admin') %}
+                        <th><a href="/delete_author/{{author[0]}}">Удалить</a></th>
+                    {% else %}
+                        <th>Удалить</th>
+                    {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

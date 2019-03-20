@@ -331,6 +331,19 @@ def delete_user(user_id):
     return redirect('/all_users')
 
 
+@app.route('/delete_author/<author_id>')
+def delete_author(author_id):
+    if author_exists(author_id):
+        try:
+            id = int(author_id)
+        except ValueError as ve:
+            print(ve)
+        author = Author.query.filter_by(id=id).delete()
+        db.session.commit()
+        flash('Автор успешно удалён')
+    return redirect('/')
+
+
 @app.route('/download_file/<book_id>')
 def download_file(book_id):
     book = Book.query.filter_by(id=int(book_id)).first()
@@ -387,6 +400,14 @@ def search():
                 f'%{request1}%'))
         authors = authors.order_by(Author.display_name).all()
         authors = list(map(lambda x: str(x).split('|||'), authors))
+        n = len(authors)
+        i = 0
+        while i < n:
+            if authors.count(authors[i]) >= 2:
+                authors.remove(authors[i])
+                n -= 1
+                i -= 1
+            i += 1
 
     return render_template('search.html', form=form, books=books,
                            authors=authors,
