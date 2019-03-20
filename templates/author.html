@@ -11,6 +11,9 @@
     </script>
 
     <h1>{{full_name}}</h1>
+    {% if session.get('is_admin') %}
+        <a class="navbar-brand" href="/delete_author/{{ id }}">Удалить автора</a>
+    {% endif %}
     <img src="{{image}} "alt="У автора нет фото" align="left"><br>
     <p>{{description}}</p>
     {% if books %}

@@ -554,7 +554,8 @@ def author_page(id):
         i += 1
     return render_template('author.html', title=author.display_name,
                            full_name=author.full_name, image=image,
-                           description=author.description, books=books)
+                           description=author.description, books=books,
+                           id=author.id)
 
 
 if __name__ == '__main__':
