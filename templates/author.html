@@ -15,7 +15,9 @@
         <a class="navbar-brand" href="/delete_author/{{ id }}">Удалить автора</a>
     {% endif %}
     <img src="{{image}} "alt="У автора нет фото" align="left"><br>
-    <p>{{description}}</p>
+    {% for line in description %}
+        <p>{{ line }}</p>
+    {% endfor %}
     {% if books %}
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
         <table id="search_results" class="display">

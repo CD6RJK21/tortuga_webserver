@@ -113,11 +113,12 @@ def add_author(display_name, full_name, description, image):
                     description=description)
     db.session.add(author)
     db.session.commit()
-    self_id = str(author.id)
-    with open(
-            '{}'.format('static/author_img/{}.{}'.format(self_id, extension)),
-            'wb') as saving_image:
-        saving_image.write(image_data)
+    if has_image:
+        self_id = str(author.id)
+        with open(
+                '{}'.format('static/author_img/{}.{}'.format(self_id, extension)),
+                'wb') as saving_image:
+            saving_image.write(image_data)
     return
 
 
@@ -537,7 +538,7 @@ def author_page(id):
         image = str(author.id) + '.' + author.image_extension
         image = '/static/author_img/' + image
     else:
-        image = ''
+        image = '/static/author_img/default.png'
     author_names = author.display_name.split() + author.full_name.split()
     books = []
     for name in author_names:
@@ -552,9 +553,13 @@ def author_page(id):
             n -= 1
             i -= 1
         i += 1
+    if '\n\n' in author.description:
+        description = author.description.split('\n')
+    else:
+        description = [author.description]
     return render_template('author.html', title=author.display_name,
                            full_name=author.full_name, image=image,
-                           description=author.description, books=books,
+                           description=description, books=books,
                            id=author.id)
 
 
