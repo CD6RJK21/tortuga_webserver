@@ -1,5 +1,6 @@
 from io import BytesIO
 from os import remove
+
 from flask import Flask, render_template, redirect, session, flash, \
     send_file, jsonify, request
 from flask_bootstrap import Bootstrap
@@ -116,7 +117,8 @@ def add_author(display_name, full_name, description, image):
     if has_image:
         self_id = str(author.id)
         with open(
-                '{}'.format('static/author_img/{}.{}'.format(self_id, extension)),
+                '{}'.format(
+                    'static/author_img/{}.{}'.format(self_id, extension)),
                 'wb') as saving_image:
             saving_image.write(image_data)
     return
