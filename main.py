@@ -389,8 +389,10 @@ def search():
     books = []
     if request1 != '':
         books = Book.query.filter(
-            Book.title.ilike(f'%{request1}%') | Book.author.ilike(
-                f'%{request1}%'))
+            Book.title.ilike(f'%{request1.lower()}%') | Book.author.ilike(
+                f'%{request1.lower()}%') | Book.title.ilike(
+            f'%{request1.upper()}%') | Book.author.ilike(
+            f'%{request1.upper()}%'))
         books = books.order_by(Book.author).all()
         books = list(map(lambda x: str(x).split('|||'), books))
         n = len(books)
