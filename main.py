@@ -28,6 +28,7 @@ login_manager.login_view = 'login'
 db = SQLAlchemy(app)
 
 render_template_old = render_template
+search_request = ''
 
 
 @login_manager.user_loader
@@ -36,8 +37,8 @@ def load_user(user_id):
 
 
 def render_template(html, **kwargs):
-    searchform1 = SearchForm()
-    return render_template_old(html, searchform=searchform1, **kwargs)
+    searchform = SearchForm()
+    return render_template_old(html, searchform=searchform, **kwargs)
 
 
 # database begins
@@ -369,6 +370,7 @@ def delete_file(book_id):
 @app.route('/')
 @app.route('/index')
 def index():
+    search_request = ''
     if 'username' not in session:
         return render_template('index.html', username='Гость',
                                title='Главная страница')
@@ -388,6 +390,8 @@ def search():
     form = SearchForm()
     books = []
     if request1 != '':
+        global search_request
+        search_request = request1[:]
         books = Book.query.filter(
             Book.title.ilike(f'%{request1.lower()}%') | Book.author.ilike(
                 f'%{request1.lower()}%') | Book.title.ilike(
@@ -424,6 +428,31 @@ def search():
                            title='Поиск')
 
 
+@app.route('/book_edit/<book_id>', methods=['GET', 'POST'])
+def book_edit(book_id):
+    if not book_exists(book_id) or not session['is_admin']:
+        if search_request != '':
+            return redirect('search?request={}'.format(search_request))
+        else:
+            return redirect('/index')
+    book = Book.query.filter_by(id=book_id).first()
+    form = BookEditForm()
+    if form.validate_on_submit():
+        book = Book.query.filter_by(id=book_id).first()
+        book.author = form.author.data
+        book.title = form.title.data
+        db.session.flush()
+        db.session.commit()
+        if search_request != '':
+            return redirect('search?request={}'.format(search_request))
+        else:
+            return redirect('/index')
+    form.title.data = book.title
+    form.author.data = book.author
+    return render_template('book_edit.html', title='Редактирование книги',
+                           form=form)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'username' in session:
@@ -457,6 +486,7 @@ def logout():
         session.pop('username', 0)
         session.pop('user_id', 0)
         session.pop('is_admin', 0)
+    session['is_admin'] = False
     return redirect('/')
 
 

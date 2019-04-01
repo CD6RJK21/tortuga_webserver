@@ -35,3 +35,9 @@ class AuthorRegisterForm(FlaskForm):
     description = TextAreaField('Биография', validators=[DataRequired()])
     image = FileField('Фото')
     submit = SubmitField('Добавить')
+
+
+class BookEditForm(FlaskForm):
+    author = StringField('Автор книги', validators=[DataRequired()])
+    title = TextAreaField('Название книги', validators=[DataRequired()])
+    submit = SubmitField('Обновить')

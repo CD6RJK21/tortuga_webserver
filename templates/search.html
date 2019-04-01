@@ -34,7 +34,11 @@
                 {% for book in books %}
                     <tr>
                     <th>{{book[0]}}</th>
-                    <th>{{book[1]}}</th>
+                    {% if session['is_admin'] %}
+                        <th><a href="/book_edit/{{book[3]}}">{{book[1]}}</a></th>
+                    {% else %}
+                        <th>{{book[1]}}</th>
+                    {% endif %}
                     <th>{{book[2]}}</th>
                     <th><a class="navbar-brand" href="/download_file/{{book[3]}}">Скачать</a></th>
                     {% if session.get('is_admin') %}
