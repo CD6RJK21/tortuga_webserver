@@ -271,12 +271,19 @@ class BookSearch(Resource):
         books = []
         if request1 != '':
             books = Book.query.filter(
-                Book.title.ilike(f'%{request1}%') | Book.author.ilike(
-                    f'%{request1}%'))
+                Book.title.ilike(f'%{request1.lower()}%') | Book.author.ilike(
+                    f'%{request1.lower()}%') | Book.title.ilike(
+                    f'%{request1.upper()}%') | Book.author.ilike(
+                    f'%{request1.upper()}%'))
             books = books.order_by(Book.author).all()
-            for book in books:
-                if books.count(book) >= 2:
-                    books.remove(book)
+            n = len(books)
+            i = 0
+            while i < n:
+                if books.count(books[i]) >= 2:
+                    books.remove(books[i])
+                    n -= 1
+                    i -= 1
+                i += 1
 
             books1 = []
             for book in books:
