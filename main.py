@@ -229,7 +229,7 @@ db.create_all()
 # database ends.
 
 
-# REST classes
+# API classes
 
 class Books(Resource):
     parser = reqparse.RequestParser()
@@ -313,7 +313,7 @@ api.add_resource(BookSearch, '/booksearch')
 api.add_resource(DownloadBook, '/download_book/<book_id>')
 
 
-# REST done
+# API done
 
 
 @app.route('/set_user_admin/<user_id>')
@@ -605,5 +605,8 @@ def author_page(id):
 
 
 if __name__ == '__main__':
+    '''Чтобы сделать пользователя админом вызовите следующую функцию'''
     # make_user_admin(User.query.filter_by(username='username_here').first().id)
+    '''Для доступа к серверу на текущей машине
+     переходить по адресу localhost'''
     app.run(port=8080, host='0.0.0.0')
