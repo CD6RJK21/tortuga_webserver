@@ -223,6 +223,12 @@ def get_username(id):
     return 'No_such_username'
 
 
+def check_user_privileges():
+    if 'username' in session:
+        user = User.query.filter(User.username == session['username']).first()
+        session['is_admin'] = user.is_admin
+
+
 db.create_all()
 
 
@@ -324,6 +330,7 @@ def set_user_admin(user_id):
     if user_exists(user_id):
         make_user_admin(int(user_id))
     flash('Пользователю успешно предоставлены права администратора')
+    check_user_privileges()
     return redirect('/all_users')
 
 
@@ -377,6 +384,7 @@ def delete_file(book_id):
 @app.route('/')
 @app.route('/index')
 def index():
+    check_user_privileges()
     search_request = ''
     if 'username' not in session:
         return render_template('index.html', username='Гость',
@@ -393,6 +401,7 @@ def index():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    check_user_privileges()
     request1 = str(request.args['request'])
     form = SearchForm()
     books = []
@@ -437,6 +446,7 @@ def search():
 
 @app.route('/book_edit/<book_id>', methods=['GET', 'POST'])
 def book_edit(book_id):
+    check_user_privileges()
     if not book_exists(book_id) or not session['is_admin']:
         if search_request != '':
             return redirect('search?request={}'.format(search_request))
@@ -574,6 +584,7 @@ def author_page(id):
     if not author_exists(int(id)):
         flash('Автора с таким id не существует.')
         return redirect('/')
+    check_user_privileges()
     author = Author.query.filter_by(id=id).first()
     if author.have_image:
         image = str(author.id) + '.' + author.image_extension

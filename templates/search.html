@@ -27,7 +27,9 @@
                     <th>Название</th>
                     <th>Пользователь</th>
                     <th>Скачать</th>
-                    <th>Удалить</th>
+                    {% if session.get('is_admin') %}
+                        <th>Удалить</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -43,8 +45,6 @@
                     <th><a class="navbar-brand" href="/download_file/{{book[3]}}">Скачать</a></th>
                     {% if session.get('is_admin') %}
                         <th><a class="navbar-brand" href="/delete_file/{{book[3]}}">Удалить</a></th>
-                    {% else %}
-                        <th>Удалить</th>
                     {% endif %}
                     </tr>
                 {% endfor %}
@@ -60,7 +60,9 @@
                 <tr>
                     <th>Автор</th>
                     <th>Полное имя</th>
-                    <th>Удалить</th>
+                    {% if session.get('is_admin') %}
+                        <th>Удалить</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -70,8 +72,6 @@
                     <th><a href="/author/{{author[0]}}">{{author[2]}}</a></th>
                     {% if session.get('is_admin') %}
                         <th><a href="/delete_author/{{author[0]}}">Удалить</a></th>
-                    {% else %}
-                        <th>Удалить</th>
                     {% endif %}
                     </tr>
                 {% endfor %}
