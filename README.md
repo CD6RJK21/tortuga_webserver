@@ -15,3 +15,4 @@
 ```
 ### Использовались библиотеки:
 flask, flask_login, flask_restful, flask_sqlalchemy, flask_wtf, wtforms, werkzeug, io
+#### Адрес сервера: 37.235.165.163:8080
